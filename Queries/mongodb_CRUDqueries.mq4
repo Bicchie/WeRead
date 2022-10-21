@@ -101,8 +101,18 @@ db.users.countDocuments({username: <inserted_username>})
 //Check username and password of a certain User (it should return 1 or 0)
 db.users.countDocuments({username: <inserted_username>, password: <inserted_password>})
 
-//Get the reading lists created by a certain user
-db.users.find({username: <searched_username>}, {_id: 0, readingList: 1})
+//Get the reading lists created by a certain user, ordered by the number of received likes
+db.users.aggregate([
+	{$match: {username: <searched_usename>}},
+	{
+		$project: {
+			_id: 0,
+			result:{
+				$sortArray: {input: "$readingList", sortBy: {numLikes: -1}}
+			}
+		}
+	}
+])
 
 //Get the favourite books list of a certain user
 db.users.find({username: <searched_username>}, {_id: 0, favourite: 1})
@@ -144,6 +154,17 @@ db.books.find({publisher: /<inserted_publisher>/i}, {_id: 0, title: 1, author: 1
 db.users.countDocuments({username: "matteGuido", password: "password"})
 
 //ESEMPIO FIND READING LISTS DI UN UTENTE
+db.users.aggregate([
+	{$match: {username: "Mark_Chang"}},
+	{
+		$project: {
+			_id: 0,
+			result:{
+				$sortArray: {input: "$readingList", sortBy: {numLikes: -1}}
+			}
+		}
+	}
+])
 db.users.find({username: "matteGuido"}, {_id: 0, readingList: 1})
 
 //ESEMPIO REVIEW ORDINATE PER TIMESTAMP
@@ -195,7 +216,6 @@ db.books.updateOne({isbn: <loaded_book_isbn>},
 	{
 		$push: {reviews: {
 					reviewer: <logged_username>,
-					title: <loaded_book_title>,
 					text: <review_text>,
 					rating: <review_rating>,
 					time: <now_timestamp>,
@@ -273,13 +293,12 @@ db.users.updateOne({username: <logged_username>, "reviews.reviewId": <selectedRe
 )
 
 //ESEMPIO AGGIUNTA DI UNA REVIEW
-db.books.updateOne({isbn: "9788864116433"},
+db.books.updateOne({isbn: "9788838920936"},
 	{
 		$push: {reviews: {
-					reviewer: "Mark_Chang",
-					title: "Stoner",
-					text: "Gran libro!",
-					rating: 4,
+					reviewer: "matteGuido",
+					text: "Libro osceno",
+					rating: 1,
 					time: "",
 					numLikes: 0,
 					likers: []
