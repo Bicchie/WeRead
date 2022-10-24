@@ -1,10 +1,11 @@
 /*
 QUERIES TO BE IMPLEMENTED:
 
-- List of books with greatest average rating -> DONE
-- List of usernames with best/worst average rating assigned in their reviews (i recensitori più buoni e i più cattivi) -> DONE
-- Usernames that have written more reviews than the others -> DONE
+- List of books with greatest average rating
+- List of usernames with best/worst average rating assigned in their reviews
+- Usernames that have written more reviews than the others
 - Reviews that have received greatest number of likes
+- Reading Lists liked by highest number of users
 - Average length in pages per Category per Category per year
 - How many books are presents per language
 - How many books are published per year by a certain publisher
