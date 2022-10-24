@@ -77,6 +77,7 @@ db.books.aggregate([
   ])
 
 // ------------------------------------------------------------------------------------------------------------------------------------
+
 // ------------- Reading Lists liked by highest number of users -----------------------------------------------------------------------
 //given x the number of reading lists we want to show
 
@@ -89,3 +90,61 @@ db.users.aggregate([
   ])
 
 // ------------------------------------------------------------------------------------------------------------------------------------
+
+// ------------- Average length in pages of Books given the Category per year ---------------------------------------------------------
+//given x the category
+
+db.books.aggregate([
+	{ $match: {category: <x>}},
+	{ $project : { publicationYear: 1, numPages: 1}},
+	{ $group: {
+            _id: '$publicationYear', 
+            avgLength: {
+                '$avg': '$numPages'
+            }
+        }},
+  	{ $sort: {_id:-1} }
+])
+
+// ------------------------------------------------------------------------------------------------------------------------------------
+
+// ------------- How many books are presents per language -----------------------------------------------------------------------------
+
+db.books.aggregate([
+    	{$group : {_id:"$language", count:{$sum:1}}},
+    	{$sort: {count: -1}}
+])
+
+// ------------------------------------------------------------------------------------------------------------------------------------
+
+// ------------- How many books are published per year by a certain publisher ---------------------------------------------------------
+given x the publisher
+db.books.aggregate([
+	{ $match: {publisher: <x>}},
+	{ $project: { publicationYear:1}},
+	{ $group: {
+            _id: '$publicationYear', 
+            count: {
+                $sum: 1
+            }
+    	}},
+  	{ $sort: {_id:-1}}
+])
+
+// ------------------------------------------------------------------------------------------------------------------------------------
+
+// ------------- List of authors with greatest average rating of their books ----------------------------------------------------------
+
+db.books.aggregate([
+  { $match: {reviews: {$ne: []}}},
+  { $project: {author:1, reviews:1 }},
+  { $unwind : "$reviews" },
+	{ $group: {
+          _id: '$author', 
+          avg_rat: {
+            $avg: '$reviews.rating'
+          }
+  	}
+  },
+  { $sort: { avg_rat : -1 }}
+]
