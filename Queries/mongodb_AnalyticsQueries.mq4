@@ -65,14 +65,27 @@ db.users.aggregate([
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-// ------------- Reviews that have received greatest number of likes (DA FINIRE) ------------------------------------------------------------------
+// ------------- Reviews that have received greatest number of likes ------------------------------------------------------------------
 //given x the number of reviews we want to show
 
 db.books.aggregate([
-	{$match: {reviews: {$ne: []}}},
-	{$project: {_id: 0, "reviews.$."},
-	{$sort: {numReviews: -1}},
-	{$limit: <x>}
-])
+  {$match: {reviews: {$ne: []}}},
+  {$unwind: "$reviews"},
+  {$project: {_id: 0, bookTitle: "$title", reviewer: "$reviews.reviewer", text: "$reviews.text", numLikes: "$reviews.numLikes"}},
+  {$sort: {numLikes: -1}},
+  {$limit: <x>}
+  ])
+
+// ------------------------------------------------------------------------------------------------------------------------------------
+// ------------- Reading Lists liked by highest number of users -----------------------------------------------------------------------
+//given x the number of reading lists we want to show
+
+db.users.aggregate([
+  {$match: {readingList: {$ne: []}}},
+  {$unwind: "$readingList"},
+  {$project: {_id: 0, name: "$readingList.name", numLikes: "$readingList.numLikes"}},
+  {$sort: {numLikes: -1}},
+  {$limit: <x>}
+  ])
 
 // ------------------------------------------------------------------------------------------------------------------------------------
