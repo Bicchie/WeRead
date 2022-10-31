@@ -25,6 +25,7 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
     
     username = row['username']
     reading_list = row['name']
+    numLikes = row['numLikes']
 
     list_isbn = row['ISBN']
     list_title = row['title']
@@ -36,7 +37,7 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
         {
             "$push": {"readingList": {
                         "name": reading_list,
-                        "numLikes": 0,
+                        "numLikes": numLikes,
                         "books": []
                     }}
         }
@@ -48,7 +49,7 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
     string_author = list_author[1:-1]
 
     list_isbn = string_isbn.split(',')
-    list_title = string_title.split(',')
+    list_title = string_title.split("',")
     list_imgURL = string_imgURL.split(',')
     list_author = string_author.split(',')
 
@@ -60,10 +61,10 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
             imgURL = imgURL[1:-1]
             author = author[1:-1]
         else:
-            isbn = isbn[2:-2]
-            title = title[2:-2]
-            imgURL = imgURL[2:-2]
-            author = author[2:-2]  
+            isbn = isbn[2:-1]
+            title = title[2:-1]
+            imgURL = imgURL[2:-1]
+            author = author[2:-1]  
 
         j = j + 1
 
@@ -78,3 +79,4 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
                         }}
             }
         )
+
