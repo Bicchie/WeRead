@@ -1,4 +1,4 @@
-package org.example;
+package it.unipi.dii.lsdb.weread;
 
 public class Main {
     public static void main(String[] args) {
