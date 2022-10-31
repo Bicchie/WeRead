@@ -65,7 +65,3 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
 					}}
 		}
 	)
-
-	i = i + 1
-	if i == 5:
-		break
