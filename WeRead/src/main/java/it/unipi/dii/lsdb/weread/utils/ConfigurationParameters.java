@@ -1,5 +1,8 @@
 package it.unipi.dii.lsdb.weread.utils;
 
+import com.thoughtworks.xstream.XStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 /**
  * Class used to store the configuration parameters retrieved from the config.xml
  * There is no need to modify this value, so there are only the getters methods
@@ -70,5 +73,21 @@ public class ConfigurationParameters {
 
         public String getNeo4jPassword() {
             return neo4jPassword;
+        }
+
+        public static ConfigurationParameters readConfigurationParameters ()
+        {
+            XStream xs = new XStream();
+
+            String text = null;
+            try {
+                text = new String(Files.readAllBytes(Paths.get("./config.xml")));
+            }
+            catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+
+            return (ConfigurationParameters) xs.fromXML(text);
+
         }
 }
