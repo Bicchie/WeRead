@@ -1,5 +1,7 @@
 package it.unipi.dii.lsdb.weread.utils;
 
+import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
+
 import com.thoughtworks.xstream.XStream;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -23,25 +25,18 @@ public class Utils {
      * @return  ConfigurationParameters instance
      */
     public static ConfigurationParameters readConfigurationParameters () {
-        if (validConfigurationParameters()) {
-            XStream xs = new XStream();
+        XStream xs = new XStream();
 
-            String text = null;
-            try {
-                text = new String(Files.readAllBytes(Paths.get("./config.xml")));
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
+        String text = null;
+        try {
+            text = new String(Files.readAllBytes(Paths.get("./config.xml")));
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
 
-            return (ConfigurationParameters) xs.fromXML(text);
-        }
-        else {
-            showErrorAlert("Problem with the configuration file!");
-            sleep(2000);
-            System.exit(1); //If i can't read the configuration file I can't continue with the program
-        }
-        return null;
+        return (ConfigurationParameters) xs.fromXML(text);
+
     }
 
     private static void sleep(int i) {

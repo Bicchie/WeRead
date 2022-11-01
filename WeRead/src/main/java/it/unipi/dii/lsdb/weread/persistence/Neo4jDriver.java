@@ -3,6 +3,9 @@ package it.unipi.dii.lsdb.weread.persistence;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import it.unipi.dii.lsdb.weread.model.User;
+import it.unipi.dii.lsdb.weread.model.Book;
+import it.unipi.dii.lsdb.weread.model.Review;
+import it.unipi.dii.lsdb.weread.model.ReadingList;
 import org.neo4j.driver.*;
 
 import static org.neo4j.driver.Values.parameters;
@@ -85,5 +88,32 @@ public class Neo4jDriver{
         }
     }
 
+    /**
+     * Create a book node
+     * @param b  Object Book that will be added
+     * @return true if operation is successfully executed, false otherwise
+     */
+    public boolean newBook(Book b)
+    {
+        try ( Session session = driver.session())
+        {
+            String title = b.getTitle();
+            String isbn = b.getIsbn();
+            String author = b.getAuthor();
+            String imageURL = b.getImageURL();
+
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run( "CREATE (ee: Book {title: $title, isbn: $isbn, author: $author, imageURL: $imgURL})",
+                        parameters( "title", title, "isbn", isbn, "author", author, "imgURL", imageURL) );
+                return null;
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.err.println("Error in adding a new Book in Neo4J");
+            return false;
+        }
+    }
 
 }
