@@ -25,6 +25,15 @@ public class Book {
         this.imageURL = imageURL;
     }
 
+    //constructor for favorite books list information only
+    public Book(String isbn, String title, String author, String imageURL){
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.imageURL = imageURL;
+        this.numPages = -1; //in order to detect if all the information about the book are loaded or not
+    }
+
     public String getIsbn() {
         return isbn;
     }

@@ -1,7 +1,7 @@
 package it.unipi.dii.lsdb.weread.persistence;
 
-import it.unipi.dii.lsdb.weread.model.User;
-import it.unipi.dii.lsdb.weread.model.Book;
+import com.google.gson.reflect.TypeToken;
+import it.unipi.dii.lsdb.weread.model.*;
 
 import com.google.gson.Gson;
 import com.mongodb.*;
@@ -12,11 +12,18 @@ import it.unipi.dii.lsdb.weread.utils.Utils;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.descending;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -151,26 +158,47 @@ public class MongoDBDriver {
     }
 
     public boolean userExists(String username){
-        try{
-            if(userCollection.countDocuments(eq("username", username)) > 0)
-                return true;
-            else
-                return false;
-        } catch (Exception e){
-            e.printStackTrace();
-            return true; //in case of error returning true is better so that the db will not be modified by successive inserting query
-        }
+        if(userCollection.countDocuments(eq("username", username)) > 0)
+            return true;
+        else
+            return false;
     }
 
     public boolean checkLogin(String username, String password){
-        try{
-            if(userCollection.countDocuments(and(eq("username", username), eq("password", password))) > 0)
-                return true;
-            else
-                return false;
-        } catch (Exception e){
-            e.printStackTrace();
+        if(userCollection.countDocuments(and(eq("username", username), eq("password", password))) > 0)
+            return true;
+        else
             return false;
-        }
     }
+
+    public List<Book> getFavoriteOfUser(String username){
+        List<Book> favorites = new ArrayList<>();
+        Gson gson = new Gson();
+        List<Document> res = (List<Document>) bookCollection.find(eq("username", username)).projection(fields(excludeId(), include("favorite"))).into(new ArrayList<>());
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        favorites = gson.fromJson(gson.toJson(res), bookListType);
+        return favorites;
+    }
+
+    public Book getBookInformation(String isbn){
+        Gson gson = new Gson();
+        Document res = (Document) bookCollection.find(eq("isbn", isbn)).projection(fields(excludeId()));
+        Book b = gson.fromJson(gson.toJson(res), Book.class);
+        return b;
+    }
+
+    public List<Review> getBookReviews(String isbn){
+        Gson gson = new Gson();
+        Bson match = match(eq("isbn", isbn));
+        Bson unwind = unwind("$reviews");
+        Bson project = project(fields(excludeId(), include("reviews")));
+        Bson sort = sort(descending("reviews.rating"));
+        List<Document> res = (List<Document>)
+                bookCollection.aggregate(Arrays.asList(match, unwind, project, sort)).into(new ArrayList());
+        Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
+        List<Review> reviews = gson.fromJson(gson.toJson(res), reviewListType);
+        return reviews;
+    }
+
+    public
 }
