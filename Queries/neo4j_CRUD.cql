@@ -116,12 +116,12 @@ CREATE (b) - [:BELONGS_TO] -> (c)
 
 //Retrieve the number of followed user
 
-MATCH (:User {username: $username })-[r:FOLLOW]->()
+MATCH (:User {username: $username })-[r:FOLLOWS]->()
 RETURN COUNT (r) AS numFollowed 
 
 // Retrieve the number of user’s followers
 
-MATCH (:User {username: $username })<-[r:FOLLOW]-()
+MATCH (:User {username: $username })<-[r:FOLLOWS]-()
 RETURN COUNT (r) AS numFollowers 
 
 // Retrieve the number of favorites received by a book
@@ -136,7 +136,7 @@ RETURN COUNT (r) AS numLikes
 
 // Check if a user follows another user
 
-MATCH (a:User{id: $usernameA })-[r:FOLLOW]->(b:User{id: $usernameB })
+MATCH (a:User{id: $usernameA })-[r:FOLLOWS]->(b:User{id: $usernameB })
 RETURN COUNT (*)
 
 // Check if a user likes a reading list
