@@ -114,10 +114,18 @@ db.users.aggregate([
 	}
 ])
 
-//Get the favourite books list of a certain user
-db.users.find({username: <searched_username>}, {_id: 0, favourite: 1})
+//seconda versione
+db.users.aggregate([
+	{$match: {isbn: <loaded_book_isbn>}},
+	{$unwind: "$readingList"},
+	{$project: {_id: 0, readingList: 1}}, 
+	{$sort: {"readingList.numLikes": 1}}
+])
 
-//Get Book information by book's title. This query is executed when we are showing information related to one and only book, so we need to use the isbn
+//Get the favourite books list of a certain user
+db.users.find({username: <searched_username>}, {_id: 0, favorite: 1})
+
+//Get Book information by book's isbn. This query is executed when we are showing information related to one and only book, so we need to use the isbn
 db.books.find({isbn: <book_isbn>}, {_id: 0})
 
 //Get the reviews written about a certain book (ordered by rating [-1 => DESCENDENT, 1 => ASCENDENT])
@@ -131,6 +139,14 @@ db.books.aggregate([
 			}
 		}
 	}
+])
+
+//seconda versione
+db.books.aggregate([
+	{$match: {isbn: <loaded_book_isbn>}},
+	{$unwind: "$reviews"},
+	{$project: {_id: 0, reviews: 1}}, 
+	{$sort: {"reviews.rating": 1}}
 ])
 
 //Get a book list given a book title. The <inserted_title> must not be substituted with something between double quotes, see the example

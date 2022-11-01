@@ -1,5 +1,8 @@
 package it.unipi.dii.lsdb.weread.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String username;
     private String name;
@@ -7,6 +10,7 @@ public class User {
     private String email;
     private String password;
     private boolean isAdministrator;
+    private List<Book> favoriteBooks;
 
     public User(){}
 
@@ -17,6 +21,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.isAdministrator = isAdministrator;
+        this.favoriteBooks = new ArrayList<>();
     }
 
     public String getUsername() {
@@ -57,6 +62,11 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void addFavoriteBook(String isbn, String title, String author, String imageURL){
+        Book toAdd = new Book(isbn, title, author, imageURL);
+        favoriteBooks.add(toAdd);
     }
 
 }
