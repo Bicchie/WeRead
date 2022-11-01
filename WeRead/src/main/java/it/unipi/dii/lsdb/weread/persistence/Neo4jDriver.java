@@ -1,6 +1,7 @@
 package it.unipi.dii.lsdb.weread.persistence;
 
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
+import it.unipi.dii.lsdb.weread.utils.Utils;
 import it.unipi.dii.lsdb.weread.model.User;
 import org.neo4j.driver.*;
 
@@ -28,7 +29,7 @@ public class Neo4jDriver{
     {
         if (instance == null)
         {
-            instance = new Neo4jDriver(ConfigurationParameters.readConfigurationParameters());
+            instance = new Neo4jDriver(Utils.readConfigurationParameters());
         }
         return instance;
     }

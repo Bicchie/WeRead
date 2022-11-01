@@ -1,5 +1,8 @@
 package it.unipi.dii.lsdb.weread.persistence;
 
+import it.unipi.dii.lsdb.weread.model.User;
+import it.unipi.dii.lsdb.weread.model.Book;
+
 import com.google.gson.Gson;
 import com.mongodb.*;
 import com.mongodb.client.*;
@@ -98,7 +101,7 @@ public class MongoDBDriver {
                 .append("email", u.getEmail())
                 .append("password", u.getPassword())
                 .append("numReviews", 0)
-                .append("isAdministrator", u.isAdmin())
+                .append("isAdministrator", u.getIsAdministrator())
                 .append("favorite", Arrays.asList())
                 .append("reviews", Arrays.asList())
                 .append("readingList", Arrays.asList());
@@ -115,14 +118,14 @@ public class MongoDBDriver {
     public boolean addBook(Book b){
         Document doc = new Document("isbn", b.getIsbn())
                 .append("title", b.getTitle())
-                .append("language", b.getTitle())
+                .append("language", b.getLanguage())
                 .append("category", b.getCategory())
                 .append("publisher", b.getPublisher())
                 .append("description", b.getDescription())
                 .append("numPages", b.getNumPages())
                 .append("imageURL", b.getImageURL())
                 .append("author", b.getAuthor())
-                .append("publicationYear", b.getPubYear())
+                .append("publicationYear", b.getPublicationYear())
                 .append("reviews", Arrays.asList());
         try{
             bookCollection.insertOne(doc);
