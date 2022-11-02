@@ -24,7 +24,6 @@ collection_books = db.books
 #  CURRENT REVIEW
 # datetime.today().replace(microsecond=0),
 
-i = 0
 
 for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
 
@@ -55,7 +54,7 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
 	collection_books.update_one({'isbn': isbn},
 		{
 			"$push": {"reviews": {
-						'reviewer': username,
+						'reviewId': username,
 						'title': title,
 						'text': review_text,
 						'rating': rating,
@@ -65,3 +64,4 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
 					}}
 		}
 	)
+

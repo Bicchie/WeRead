@@ -79,4 +79,3 @@ for index, row in tqdm.tqdm(df.iterrows(), total=df.shape[0]):
                         }}
             }
         )
-
