@@ -5,9 +5,9 @@ import java.util.List;
 public class ReadingList {
     private String name;
     private int numLikes;
-    private List books;
+    private List<Book> books;
 
-    public ReadingList(String name, int numLikes, List books) {
+    public ReadingList(String name, int numLikes, List<Book> books) {
         this.name = name;
         this.numLikes = numLikes;
         this.books = books;
@@ -21,7 +21,7 @@ public class ReadingList {
         return numLikes;
     }
 
-    public List getBooks() {
+    public List<Book> getBooks() {
         return books;
     }
 

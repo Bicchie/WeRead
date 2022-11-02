@@ -4,26 +4,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Review {
-    private String reviewer;
+    private String reviewId; //<reviewer>:<book_isbn>
     private String title;
     private String text;
     private int rating;
     private LocalDateTime time;
     private int numLikes;
-    private List likers;
+    private List<User> likers;
 
 
-    public Review(String reviewer, String title, String text, int rating, LocalDateTime time, int numLikes, List likers) {
-        this.reviewer = reviewer;
+    public Review(String reviewId, String title, String text, int rating, LocalDateTime time, int numLikes, List<User> likers) {
+        this.reviewId = reviewId;
         this.title = title;
         this.text = text;
         this.rating = rating;
         this.time = time;
         this.likers = likers;
+        this.numLikes = numLikes;
     }
 
     public String getReviewer() {
-        return reviewer;
+        return reviewId.split(":")[0];
     }
 
     public String getTitle() {
@@ -42,7 +43,7 @@ public class Review {
         return time;
     }
 
-    public List getLikers() {
+    public List<User> getLikers() {
         return likers;
     }
 }

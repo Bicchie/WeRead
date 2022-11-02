@@ -1,9 +1,9 @@
 package it.unipi.dii.lsdb.weread.persistence;
 
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import it.unipi.dii.lsdb.weread.model.*;
 
-import com.google.gson.Gson;
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -15,9 +15,13 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Aggregates.*;
@@ -147,7 +151,16 @@ public class MongoDBDriver {
     public User getUserInfo(String username){
         try {
             User user = null;
-            Gson gson = new Gson();
+            //we need to establish how the LocalDateTime must be deserialized
+            Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+                @Override
+                public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    //Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
+                    //return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+                    return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+                }
+            }).create();
+
             Document res = (Document) userCollection.find(eq("username", username)).first();
             user = gson.fromJson(gson.toJson(res), User.class);
             return user;
@@ -172,33 +185,70 @@ public class MongoDBDriver {
     }
 
     public List<Book> getFavoriteOfUser(String username){
-        List<Book> favorites = new ArrayList<>();
-        Gson gson = new Gson();
-        List<Document> res = (List<Document>) bookCollection.find(eq("username", username)).projection(fields(excludeId(), include("favorite"))).into(new ArrayList<>());
-        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
-        favorites = gson.fromJson(gson.toJson(res), bookListType);
-        return favorites;
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+            @Override
+            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+            }
+        }).create();
+        Document res = (Document) userCollection.find(eq("username", username)).projection(fields(excludeId(), include("favourite"))).first();
+        User temporary = gson.fromJson(gson.toJson(res), User.class);
+        return temporary.getFavourite();
     }
 
     public Book getBookInformation(String isbn){
         Gson gson = new Gson();
-        Document res = (Document) bookCollection.find(eq("isbn", isbn)).projection(fields(excludeId()));
+        Document res = (Document) bookCollection.find(eq("isbn", isbn)).first();
         Book b = gson.fromJson(gson.toJson(res), Book.class);
         return b;
     }
 
     public List<Review> getBookReviews(String isbn){
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+            @Override
+            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+            }
+        }).create();
         Bson match = match(eq("isbn", isbn));
         Bson unwind = unwind("$reviews");
         Bson project = project(fields(excludeId(), include("reviews")));
         Bson sort = sort(descending("reviews.rating"));
-        List<Document> res = (List<Document>)
-                bookCollection.aggregate(Arrays.asList(match, unwind, project, sort)).into(new ArrayList());
-        Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
-        List<Review> reviews = gson.fromJson(gson.toJson(res), reviewListType);
-        return reviews;
+        //DA SISTEMARE
+        List<Document> res = (List<Document>) bookCollection.aggregate(Arrays.asList(match, unwind, project, sort));
+        Book temporary = gson.fromJson(gson.toJson(res.get(0)), Book.class);
+        /*Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
+        List<Review> reviews = gson.fromJson(gson.toJson(res), reviewListType);*/
+        return temporary.getReviews();
     }
 
-    public
+    public List<Book> searchBookByTitle(String titleExpr){
+        List<Book> bookList = null;
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+            @Override
+            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+            }
+        }).create();
+        Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$", Pattern.CASE_INSENSITIVE);
+        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL"))).into(new ArrayList());
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        bookList = gson.fromJson(gson.toJson(res), bookListType);
+        return  bookList;
+    }
+
+    public List<Book> searchBookByCategory(String category){
+        List<Book> bookList = null;
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+            @Override
+            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+            }
+        }).create();
+        Pattern pattern  = Pattern.compile("^.*" + category + ".*$", Pattern.CASE_INSENSITIVE);
+        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL"))).into(new ArrayList());
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        bookList = gson.fromJson(gson.toJson(res), bookListType);
+        return  bookList;
+    }
 }

@@ -1,5 +1,7 @@
 package it.unipi.dii.lsdb.weread.model;
 
+import java.util.List;
+
 public class Book {
     private String isbn;
     private String title;
@@ -11,8 +13,9 @@ public class Book {
     private int numPages;
     private int publicationYear;
     private String imageURL;
+    private List<Review> reviews;
 
-    public Book(String isbn, String title, String language, String category, String publisher, String description, String author, int numPages, int publicationYear, String imageURL) {
+    public Book(String isbn, String title, String language, String category, String publisher, String description, String author, int numPages, int publicationYear, String imageURL, List<Review> reviews) {
         this.isbn = isbn;
         this.title = title;
         this.language = language;
@@ -23,6 +26,7 @@ public class Book {
         this.publicationYear = publicationYear;
         this.numPages = numPages;
         this.imageURL = imageURL;
+        this.reviews = reviews;
     }
 
     //constructor for favorite books list information only
@@ -31,6 +35,17 @@ public class Book {
         this.title = title;
         this.author = author;
         this.imageURL = imageURL;
+        this.numPages = -1; //in order to detect if all the information about the book are loaded or not
+        this.category = "";
+    }
+
+    //constructor for list of books information only
+    public Book(String isbn, String title, String author, String category, String imageURL){
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.imageURL = imageURL;
+        this.category = category;
         this.numPages = -1; //in order to detect if all the information about the book are loaded or not
     }
 
@@ -66,6 +81,5 @@ public class Book {
         return imageURL;
     }
 
-
-
+    public List<Review> getReviews() { return reviews; }
 }
