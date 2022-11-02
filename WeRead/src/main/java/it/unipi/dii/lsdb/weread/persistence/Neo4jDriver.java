@@ -7,6 +7,11 @@ import it.unipi.dii.lsdb.weread.model.Book;
 import it.unipi.dii.lsdb.weread.model.ReadingList;
 import org.neo4j.driver.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.neo4j.driver.Values.parameters;
 
 
@@ -656,7 +661,329 @@ public class Neo4jDriver{
 
     /***************************** ANALYTICS ******************************************/
 
+    /**
+     * This function is used to obtain the most Followed Users
+     * @param howMany       How many to obtain
+     * @return              List of the most followed Users
+     */
+    public List<String> mostFollowedUsers (int howMany)
+    {
+        List<String> usernames = new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (u:User)<-[r:FOLLOWS]-(:User)\n" +
+                                          "RETURN DISTINCT u.username AS Username,\n" +
+                                          "COUNT(DISTINCT r) AS numFollower ORDER BY numFollower DESC\n" +
+                                          "LIMIT $limit",
+                        parameters( "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String user = r.get("Username").asString();
+                    usernames.add(user);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return usernames;
+    }
+
+    /**
+     * This function is used to obtain the most Liked Reading Lists
+     * @param howMany       How many to obtain
+     * @return              List of the most Liked Reading Lists
+     */
+    public List<String> mostLikedReadingLists (int howMany)
+    {
+        List<String> readingLists = new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (:User)-[l:LIKES]->(rl:ReadingList)\n" +
+                                          "RETURN rl.name AS ReadingList,\n" +
+                                          "COUNT(DISTINCT l) AS numLikes ORDER BY numLikes DESC\n" +
+                                          "LIMIT $limit",
+                        parameters( "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String readingList = r.get("ReadingList").asString();
+                    readingLists.add(readingList);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return readingLists;
+    }
 
 
+    /**
+     * This function is used to obtain the most Favorited Books
+     * @param howMany       How many to obtain
+     * @return              List of the most Favorited Books
+     */
+    public List<Book> mostFavoritedBooks (int howMany)
+    {
+        List<Book> books = new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (:User)-[f:FAVORITES]->(b: Book)\n" +
+                                          "RETURN b.title AS title, b.author AS author, b.imageURL AS imageURL, b.isbn AS isbn,\n" +
+                                          "COUNT(f) AS numFavorites ORDER BY numFavorites DESC\n" +
+                                          "LIMIT $limit",
+                        parameters( "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String title = r.get("title").asString();
+                    String author = r.get("author").asString();
+                    String imageURL = r.get("imageURL").asString();
+                    String isbn = r.get("isbn").asString();
+                    Book book = new Book(isbn,title,author,imageURL);
+                    books.add(book);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return books;
+    }
+
+    /**
+     * This function is used to suggest Users followed by users that the logged user follow, who is interested to the same categories
+     * @param loggedUsername    Username of the logged User
+     * @return                  List of the suggested Users
+     */
+    public List<String> suggestUsersByCommonInterest (String loggedUsername)
+    {
+        List<String> suggestedUsers = new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (me:User {username: $username}) -[f: FOLLOWS]-> (u2) -[f2: FOLLOWS]-> (target: User)\n" +
+                                          "WHERE NOT EXISTS ((me) -[: FOLLOWS]-> (target)) \n" +
+                                          "AND (me) -[: IS_INTERESTED_TO]-> (: Category) <-[: IS_INTERESTED_TO]- (target)\n" +
+                                          "RETURN DISTINCT target.username AS username",
+                        parameters( "username", loggedUsername));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String user = r.get("username").asString();
+                    suggestedUsers.add(user);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return suggestedUsers;
+    }
+
+
+
+    /**
+     * This function is used to get categories summary by likes of reading lists
+     *  @param howMany       How many to obtain
+     *  @return Map of categories with likes gathered from the reading lists
+     */
+    public Map<String,Integer> categoriesSummaryByReadingList (int howMany)
+    {
+        Map<String, Integer> summary = new HashMap<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (: User) -[: LIKES]-> (rl: ReadingList) -[h: HAS]-> (: Book) -[be: BELONGS_TO]-> (c: Category)\n" +
+                                          "RETURN c.name AS Category,\n" +
+                                          "COUNT(be) AS numTop ORDER BY numTop DESC\n" +
+                                          "LIMIT $limit",
+                        parameters( "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String category = r.get("Category").asString();
+                    Integer value = r.get("numTop").asInt();
+                    summary.put(category,value);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return summary;
+    }
+
+    /**
+     * This function is used to get categories summary by favorites books
+     *  @return Map of categories with favorites gathered from books belonging to that category
+     */
+    public Map<String,Integer> categoriesSummaryByFavoriteBooks (int howMany)
+    {
+        Map<String, Integer> summary = new HashMap<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (: User) -[: FAVORITES]-> (: Book) -[be: BELONGS_TO]-> (c: Category)\n" +
+                                          "RETURN c.name AS Category,\n" +
+                                          "COUNT(be) AS numFavorites ORDER BY numFavorites DESC\n" +
+                                          "LIMIT $limit",
+                        parameters( "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String category = r.get("Category").asString();
+                    Integer value = r.get("numFavorites").asInt();
+                    summary.put(category,value);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return summary;
+    }
+
+    /**
+     * This function is used to get how many followers, follow you back
+     *  @param loggedUsername    Username of the logged User
+     *  @return Map with in "Followed" the number of user followed by the user, in "FollowBack" how many follow back the user
+     */
+    public Map<String,Integer> howManyFollowYouBack (String loggedUsername)
+    {
+        Map<String, Integer> map = new HashMap<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (ua:User {username: $loggedusername })-[:FOLLOWS]->(ub:User)\n" +
+                                          "OPTIONAL MATCH p = (ub)-[r:FOLLOWS]->(ua)\n" +
+                                          "RETURN COUNT(p) AS FollowBack, COUNT(ua) AS Followed",
+                        parameters( "loggedusername", loggedUsername));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    Integer Followed = r.get("Followed").asInt();
+                    map.put("Followed",Followed);
+
+                    Integer FollowBack = r.get("FollowBack").asInt();
+                    map.put("FollowBack",FollowBack);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+
+    /**
+     * This function is used suggest Books and it is based on different metrics:
+     *  - books present in reading list in which your favorites books belong
+     *  - books favorites by your follows
+     *  - books belonging to the category that you are interested to
+     *  - books belonging to reading lists liked by your follows
+     * @param loggedUsername    Username of the logged User
+     * @param howMany
+     * @return                  List of the suggested Books
+     */
+    public List<Book> suggestBooks(String loggedUsername, int howMany)
+    {
+        List<Book> suggestedBooks= new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (u:User{username: $username})-[i:IS_INTERESTED_TO]->(c:Category)<-[bt:BELONGS_TO]-(bf:Book)\n" +
+                                          "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "LIMIT $limit\n" +
+                                          "UNION\n" +
+                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(ua:User)-[l:LIKES]->(r:ReadingList)-[o:HAS]->(bf:Book)\n" +
+                                          "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "LIMIT $limit\n" +
+                                          "UNION\n" +
+                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(uf:User)-[fav:FAVORITES]->(bf:Book)\n" +
+                                          "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "LIMIT $limit\n" +
+                                          "UNION\n" +
+                                          "MATCH (u:User{username: $username})-[f:FAVORITES]->(b:Book)<-[h:HAS]-(r:ReadingList)-[h2:HAS]->(bf:Book)\n" +
+                                          "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "LIMIT $limit",
+                        parameters( "username", loggedUsername, "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String title = r.get("title").asString();
+                    String author = r.get("author").asString();
+                    String imageURL = r.get("imageURL").asString();
+                    String isbn = r.get("isbn").asString();
+                    Book book = new Book(isbn,title,author,imageURL);
+                    suggestedBooks.add(book);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return suggestedBooks;
+    }
+
+
+
+
+    /**
+     * This function is used suggest Reading List and it is based on different metrics:
+     *  - reading lists liked by your follows
+     *  - reading lists liked by users followed by your follows
+     * @param loggedUsername    Username of the logged User
+     * @param howMany
+     * @return                  List of the suggested Reading List
+     */
+    public List<String> suggestReadingLists(String loggedUsername, int howMany)
+    {
+        List<String> suggestedReadingList= new ArrayList<>();
+        try(Session session = driver.session()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (u:User{username: $username})-[f:FOLLOWS]->(ua:User)-[l:LIKES]->(rl:ReadingList)\n" +
+                                          "WHERE NOT EXISTS((u)-[:LIKES]->(rl))\n" +
+                                          "RETURN rl.name AS name\n" +
+                                          "LIMIT $limit\n" +
+                                          "UNION \n" +
+                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(ub:User)-[f2:FOLLOW]->(uc:User)-[l:LIKES]->(rl:ReadingList)\n" +
+                                          "WHERE NOT EXISTS((u)-[:FOLLOW]->(uc))\n" +
+                                          "RETURN rl.name AS name\n" +
+                                          "LIMIT $limit\n",
+                        parameters( "username", loggedUsername, "limit", howMany));
+
+                while(result.hasNext()){
+                    Record r = result.next();
+                    String name = r.get("name").asString();
+                    suggestedReadingList.add(name);
+                }
+                return null;
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return suggestedReadingList;
+    }
 
 }
