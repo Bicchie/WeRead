@@ -10,7 +10,7 @@ LIMIT <limit>
 //------------------ Most Liked Reading List -------------------------------------------------------------------------
 
 MATCH (:User)-[l:LIKES]->(rl:ReadingList)
-RETURN rl.name
+RETURN DISTINCT rl.name AS ReadingList,
 COUNT(l) AS numLikes ORDER BY numLikes DESC
 LIMIT <limit>
 
