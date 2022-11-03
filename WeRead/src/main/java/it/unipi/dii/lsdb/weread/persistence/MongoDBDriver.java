@@ -2,12 +2,12 @@ package it.unipi.dii.lsdb.weread.persistence;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsdb.weread.model.*;
 
 import com.mongodb.*;
 import com.mongodb.client.*;
-import com.mongodb.client.model.*;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import org.bson.Document;
@@ -16,9 +16,6 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,13 +61,14 @@ public class MongoDBDriver {
         this.dbName = configurationParameters.getMongoDbName();
     }
 
+    /* risolto usando Date
     //we need to establish how the LocalDateTime must be deserialized
     private class DateTimeAdapter implements JsonDeserializer<LocalDateTime>{
         @Override
         public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
         }
-    }
+    }*/
 
     public static MongoDBDriver getInstance() {
         if(instance == null){
@@ -161,8 +159,9 @@ public class MongoDBDriver {
     public User getUserInfo(String username){
         User user = null;
         //we need to establish how the LocalDateTime must be deserialized
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
+        Gson gson = new Gson();
         Document res = (Document) userCollection.find(eq("username", username)).first();
         user = gson.fromJson(gson.toJson(res), User.class);
         return user;
@@ -183,7 +182,8 @@ public class MongoDBDriver {
     }
 
     public List<Book> getFavoriteOfUser(String username){
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        Gson gson = new Gson();
         Document res = (Document) userCollection.find(eq("username", username)).projection(fields(excludeId(), include("favourite"))).first();
         List<Document> bookList = (List<Document>) res.get("favourite");
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
@@ -192,14 +192,16 @@ public class MongoDBDriver {
     }
 
     public Book getBookInformation(String isbn){
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        Gson gson = new Gson();
         Document res = (Document) bookCollection.find(eq("isbn", isbn)).first();
         Book b = gson.fromJson(gson.toJson(res), Book.class);
         return b;
     }
 
     public List<Review> getBookReviews(String isbn){
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        Gson gson = new Gson();
         Bson match = match(eq("isbn", isbn));
         Bson unwind = unwind("$reviews");
         Bson project = project(fields(excludeId(), include("reviews")));
@@ -218,8 +220,9 @@ public class MongoDBDriver {
 
     public List<Book> searchBookByTitle(String titleExpr){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
+        Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$", Pattern.CASE_INSENSITIVE);
         List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
@@ -229,8 +232,9 @@ public class MongoDBDriver {
 
     public List<Book> searchBookByCategory(String category){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
+        Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + category + ".*$", Pattern.CASE_INSENSITIVE);
         List<Document> res = (List<Document>) bookCollection.find(regex("category", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
@@ -240,8 +244,9 @@ public class MongoDBDriver {
 
     public List<Book> searchBookByAuthor(String author){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
+        Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + author + ".*$", Pattern.CASE_INSENSITIVE);
         List<Document> res = (List<Document>) bookCollection.find(regex("author", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
@@ -251,8 +256,9 @@ public class MongoDBDriver {
 
     public List<Book> searchBookByPublisher(String publisher){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
+        Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + publisher + ".*$", Pattern.CASE_INSENSITIVE);
         List<Document> res = (List<Document>) bookCollection.find(regex("publisher", publisher)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
@@ -286,24 +292,24 @@ public class MongoDBDriver {
     }
 
     //returns true only if both the queries in both the collections are ok
-    public boolean addNewReview(User user, Book book, Review review){
+    public boolean addNewReview(Review review){
         Document toAdd = new Document("reviewId", review.getReviewId())
                 .append("title", review.getBookTitle())
                 .append("text", review.getText())
                 .append("rating", review.getRating())
-                .append("time", review.getTime().toString())
+                .append("time", review.getTime())
                 .append("numLikes", review.getNumLikes())
-                .append("likers", review.getNumLikes());
+                .append("likers", review.getLikers());
         //first I update users collection
-        Bson match = eq("username", user.getUsername());
+        Bson match = eq("username", review.getReviewer());
         Bson push = push("reviews", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
-        
+
         //update books collection
         toAdd.remove("title");
-        match = eq("isbn", book.getIsbn());
+        match = eq("isbn", review.getReviewedBookIsbn());
         push = push("reviews", toAdd);
         res = bookCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1) {
@@ -311,5 +317,159 @@ public class MongoDBDriver {
             return false;
         }
         return true;
+    }
+
+    //return true only if the review has been succesfully removed by both the collections
+    public boolean removeReview(Review review){
+        Document toRemove = new Document("reviewId", review.getReviewId());
+        //update users collection
+        Bson match = eq("username", review.getReviewer());
+        Bson pull = pull("reviews", toRemove);
+        UpdateResult res = userCollection.updateOne(match, pull);
+        if(res.getModifiedCount() < 1)
+            return false;
+
+        //update books collection
+        match = eq("isbn", review.getReviewedBookIsbn());
+        res = bookCollection.updateOne(match, pull);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    //return true only if both the queries are successful
+    public boolean addLikeReview(Review review, String liker){
+        //update users collection
+        Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
+        Bson push = push("reviews.$.likers", liker);
+        Bson inc = inc("reviews.$.numLikes", 1);
+        UpdateResult res = userCollection.updateOne(match, combine(inc, push));
+        if(res.getModifiedCount() < 1)
+            return false;
+        //update books collection
+        match = and(eq("isbn", review.getReviewedBookIsbn()), eq("reviews.reviewId", review.getReviewId()));
+        res = bookCollection.updateOne(match, combine(inc, push));
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    //return true only if both the queries are successful
+    public boolean removeLikeReview(Review review, String unliker){
+        //update users collection
+        Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
+        Bson push = push("reviews.$.likers", unliker);
+        Bson dec = inc("reviews.$.numLikes", -1);
+        UpdateResult res = userCollection.updateOne(match, combine(dec, push));
+        if(res.getModifiedCount() < 1)
+            return false;
+        //update books collection
+        match = and(eq("isbn", review.getReviewedBookIsbn()), eq("reviews.reviewId", review.getReviewId()));
+        res = bookCollection.updateOne(match, combine(dec, push));
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean addNewReadingList(ReadingList rl, String user){
+        Document toAdd = new Document("name", rl.getName())
+                .append("numLikes", rl.getNumLikes())
+                .append("books", rl.getBooks());
+        Bson match = eq("username", user);
+        Bson push = push("readingList", toAdd);
+        UpdateResult res = userCollection.updateOne(match, push);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean removeReadingList(ReadingList rl, String user){
+        Document toRemove = new Document("name", rl.getName());
+        Bson match = eq("username", user);
+        Bson pull = pull("readingList", toRemove);
+        UpdateResult res = userCollection.updateOne(match, pull);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean addBookToReadingList(String user, String rlName, Book book){
+        Document toAdd = new Document("isbn", book.getIsbn())
+                .append("title", book.getTitle())
+                .append("author", book.getAuthor())
+                .append("imageURL", book.getImageURL());
+        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson push = push("readingList.$.books", toAdd);
+        UpdateResult res = userCollection.updateOne(match, push);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean removeBookFromReadingList(String user, String rlName, Book book){
+        Document toRemove = new Document("isbn", book.getIsbn());
+        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson pull = pull("readingList.$.books", toRemove);
+        UpdateResult res = userCollection.updateOne(match, pull);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean addLikeReadingList(String user, String rlName){
+        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson inc = inc("readingList.$.numLikes", 1);
+        UpdateResult res = userCollection.updateOne(match, inc);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean removeLikeReadingList(String user, String rlName){
+        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson dec = inc("readingList.$.numLikes", -1);
+        UpdateResult res = userCollection.updateOne(match, dec);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean changeUserPassword(String username, String newPassword){
+        Bson match = eq("username", username);
+        Bson set = set("password", newPassword);
+        UpdateResult res = userCollection.updateOne(match, set);
+        if(res.getModifiedCount() < 1)
+            return false;
+        return true;
+    }
+
+    public boolean deleteUser(String username){
+        Bson match = eq("username", username);
+        DeleteResult res = userCollection.deleteOne(match);
+        if(res.getDeletedCount() < 1)
+            return false;
+        return true;
+    }
+
+    //returns a list of list of objects. Each list is composed as [title | author | imageURL | averageRating]
+    public List<List<Object>> topAvgRatingBooks(int booksNumber){
+        Gson gson = new Gson();
+        //controllo che ci siano review
+        Bson match = match(ne("reviews", new ArrayList<>()));
+        Bson project = project(fields(excludeId(), include("title", "author", "imageURL"), computed("averageRating", computed("$avg", "$reviews.rating"))));
+        Bson sort = sort(descending("averageRating"));
+        Bson limit = limit(booksNumber);
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, project, sort, limit)).iterator();
+        List<List<Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            List<Object> res = new ArrayList<>();
+            res.add(doc.getString("title"));
+            res.add(doc.getString("author"));
+            res.add(doc.getString("imageURL"));
+            res.add(doc.getDouble("averageRating"));
+            ranking.add(res);
+        }
+        return ranking;
     }
 }

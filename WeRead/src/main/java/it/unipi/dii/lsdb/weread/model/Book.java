@@ -82,4 +82,8 @@ public class Book {
     }
 
     public List<Review> getReviews() { return reviews; }
+
+    public void addReview(Review rev) {reviews.add(rev);}
+
+    public void removeReview(Review rev) {reviews.remove(rev);}
 }

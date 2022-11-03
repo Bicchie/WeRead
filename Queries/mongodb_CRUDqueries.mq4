@@ -46,7 +46,7 @@ db.users.insertOne(
 		name: <name>,
 		surname: <surname>,
 		email: <new_user_mail>,
-		numReviews: 0,
+		//numReviews: 0,
 		password: <new_user_password>,
 		isAdministrator: <is_administrator?>,
 		favourite: [],
@@ -278,7 +278,7 @@ db.users.updateOne({username: <logged_username>},
 					numLikes: 0,
 					likers: []
 				}},
-		$inc: {numReviews: 1}
+		//$inc: {numReviews: 1}
 	}
 )
 
@@ -288,7 +288,7 @@ db.users.updateOne({username: <logged_username>},
 		$pull: {reviews: {
 					reviewId: <logged_username> + <loaded_book_isbn>
 				}},
-		$inc: {numReviews: -1}
+		//$inc: {numReviews: -1}
 	}
 )
 
