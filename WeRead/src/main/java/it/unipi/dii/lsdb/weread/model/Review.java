@@ -1,6 +1,7 @@
 package it.unipi.dii.lsdb.weread.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Review {
@@ -10,10 +11,10 @@ public class Review {
     private int rating;
     private LocalDateTime time;
     private int numLikes;
-    private List<User> likers;
+    private List<String> likers;
 
 
-    public Review(String reviewId, String title, String text, int rating, LocalDateTime time, int numLikes, List<User> likers) {
+    public Review(String reviewId, String title, String text, int rating, LocalDateTime time, int numLikes, List<String> likers) {
         this.reviewId = reviewId;
         this.title = title;
         this.text = text;
@@ -23,11 +24,24 @@ public class Review {
         this.numLikes = numLikes;
     }
 
+    //constructor for a new review, with some variables that must be initialized to default values
+    public Review(String username, String isbn, String text, int rating, String title){
+        this.reviewId = username + ":" + isbn;
+        this.text = text;
+        this.rating = rating;
+        this.title = title;
+        time = LocalDateTime.now();
+        numLikes = 0;
+        likers = new ArrayList<>();
+    }
+
+    public String getReviewId() { return reviewId; }
+
     public String getReviewer() {
         return reviewId.split(":")[0];
     }
 
-    public String getTitle() {
+    public String getBookTitle() {
         return title;
     }
 
@@ -43,7 +57,9 @@ public class Review {
         return time;
     }
 
-    public List<User> getLikers() {
+    public int getNumLikes() { return numLikes; }
+
+    public List<String> getLikers() {
         return likers;
     }
 }

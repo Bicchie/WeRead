@@ -2,6 +2,7 @@ package it.unipi.dii.lsdb.weread.persistence;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsdb.weread.model.*;
 
 import com.mongodb.*;
@@ -28,6 +29,7 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.*;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -60,6 +62,14 @@ public class MongoDBDriver {
         this.username = configurationParameters.getMongoUsername();
         this.password = configurationParameters.getMongoPassword();
         this.dbName = configurationParameters.getMongoDbName();
+    }
+
+    //we need to establish how the LocalDateTime must be deserialized
+    private class DateTimeAdapter implements JsonDeserializer<LocalDateTime>{
+        @Override
+        public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+        }
     }
 
     public static MongoDBDriver getInstance() {
@@ -149,25 +159,13 @@ public class MongoDBDriver {
     }
 
     public User getUserInfo(String username){
-        try {
-            User user = null;
-            //we need to establish how the LocalDateTime must be deserialized
-            Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-                @Override
-                public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                    //Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
-                    //return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                    return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-                }
-            }).create();
+        User user = null;
+        //we need to establish how the LocalDateTime must be deserialized
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
-            Document res = (Document) userCollection.find(eq("username", username)).first();
-            user = gson.fromJson(gson.toJson(res), User.class);
-            return user;
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
+        Document res = (Document) userCollection.find(eq("username", username)).first();
+        user = gson.fromJson(gson.toJson(res), User.class);
+        return user;
     }
 
     public boolean userExists(String username){
@@ -185,53 +183,45 @@ public class MongoDBDriver {
     }
 
     public List<Book> getFavoriteOfUser(String username){
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-            @Override
-            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-            }
-        }).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
         Document res = (Document) userCollection.find(eq("username", username)).projection(fields(excludeId(), include("favourite"))).first();
-        User temporary = gson.fromJson(gson.toJson(res), User.class);
-        return temporary.getFavourite();
+        List<Document> bookList = (List<Document>) res.get("favourite");
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        List<Book> favourite = gson.fromJson(gson.toJson(bookList), bookListType);
+        return favourite;
     }
 
     public Book getBookInformation(String isbn){
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
         Document res = (Document) bookCollection.find(eq("isbn", isbn)).first();
         Book b = gson.fromJson(gson.toJson(res), Book.class);
         return b;
     }
 
     public List<Review> getBookReviews(String isbn){
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-            @Override
-            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-            }
-        }).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
         Bson match = match(eq("isbn", isbn));
         Bson unwind = unwind("$reviews");
         Bson project = project(fields(excludeId(), include("reviews")));
         Bson sort = sort(descending("reviews.rating"));
-        //DA SISTEMARE
-        List<Document> res = (List<Document>) bookCollection.aggregate(Arrays.asList(match, unwind, project, sort));
-        Book temporary = gson.fromJson(gson.toJson(res.get(0)), Book.class);
-        /*Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
-        List<Review> reviews = gson.fromJson(gson.toJson(res), reviewListType);*/
-        return temporary.getReviews();
+
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, unwind, project, sort)).iterator();
+        List<Review> reviews = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Document reviewDocument = (Document) doc.get("reviews");
+            Review rev = gson.fromJson(gson.toJson(reviewDocument), Review.class);
+            reviews.add(rev);
+        }
+        return reviews;
     }
 
     public List<Book> searchBookByTitle(String titleExpr){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-            @Override
-            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-            }
-        }).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+
         Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
@@ -239,16 +229,87 @@ public class MongoDBDriver {
 
     public List<Book> searchBookByCategory(String category){
         List<Book> bookList = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-            @Override
-            public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-            }
-        }).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+
         Pattern pattern  = Pattern.compile("^.*" + category + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("category", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
+    }
+
+    public List<Book> searchBookByAuthor(String author){
+        List<Book> bookList = null;
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+
+        Pattern pattern  = Pattern.compile("^.*" + author + ".*$", Pattern.CASE_INSENSITIVE);
+        List<Document> res = (List<Document>) bookCollection.find(regex("author", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        bookList = gson.fromJson(gson.toJson(res), bookListType);
+        return  bookList;
+    }
+
+    public List<Book> searchBookByPublisher(String publisher){
+        List<Book> bookList = null;
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+
+        Pattern pattern  = Pattern.compile("^.*" + publisher + ".*$", Pattern.CASE_INSENSITIVE);
+        List<Document> res = (List<Document>) bookCollection.find(regex("publisher", publisher)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        bookList = gson.fromJson(gson.toJson(res), bookListType);
+        return  bookList;
+    }
+
+    public boolean addBookToFavorite(String username, Book book){
+        Document toAdd = new Document("isbn", book.getIsbn())
+                .append("title", book.getTitle())
+                .append("author", book.getAuthor())
+                .append("imageURL", book.getImageURL());
+        Bson match = eq("username", username);
+        Bson push = push("favourite", toAdd);
+        UpdateResult res = userCollection.updateOne(match, push);
+        if(res.getModifiedCount() < 1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean removeBookFromFavorite(String username, Book book){
+        Document toRemove = new Document("isbn", book.getIsbn());
+        Bson match = eq("username", username);
+        Bson pull = pull("favourite", toRemove);
+        UpdateResult res = userCollection.updateOne(match, pull);
+        if(res.getModifiedCount() == 1)
+            return true;
+        else
+            return false;
+    }
+
+    //returns true only if both the queries in both the collections are ok
+    public boolean addNewReview(User user, Book book, Review review){
+        Document toAdd = new Document("reviewId", review.getReviewId())
+                .append("title", review.getBookTitle())
+                .append("text", review.getText())
+                .append("rating", review.getRating())
+                .append("time", review.getTime().toString())
+                .append("numLikes", review.getNumLikes())
+                .append("likers", review.getNumLikes());
+        //first I update users collection
+        Bson match = eq("username", user.getUsername());
+        Bson push = push("reviews", toAdd);
+        UpdateResult res = userCollection.updateOne(match, push);
+        if(res.getModifiedCount() < 1)
+            return false;
+        
+        //update books collection
+        toAdd.remove("title");
+        match = eq("isbn", book.getIsbn());
+        push = push("reviews", toAdd);
+        res = bookCollection.updateOne(match, push);
+        if(res.getModifiedCount() < 1) {
+            //rimuovi review da utente??
+            return false;
+        }
+        return true;
     }
 }
