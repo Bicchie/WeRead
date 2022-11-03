@@ -1,5 +1,6 @@
 package it.unipi.dii.lsdb.weread.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReadingList {
@@ -11,6 +12,13 @@ public class ReadingList {
         this.name = name;
         this.numLikes = numLikes;
         this.books = books;
+    }
+
+    //constructor for new reading lists, with some variables that must be initialized with default values
+    public ReadingList(String name){
+        this.name = name;
+        numLikes = 0;
+        books = new ArrayList<>();
     }
 
     public String getName() {

@@ -74,9 +74,8 @@ public class User {
 
     public List<Review> getReviewList() { return reviews; }
 
-    public void addFavoriteBook(String isbn, String title, String author, String imageURL){
-        Book toAdd = new Book(isbn, title, author, imageURL);
-        favourite.add(toAdd);
+    public void addFavoriteBook(Book b){
+        favourite.add(b);
     }
 
 }
