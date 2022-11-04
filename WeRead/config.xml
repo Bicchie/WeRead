@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <it.unipi.dii.lsdb.weread.utils.ConfigurationParameters>
+    <mongoFirstIp>127.0.0.1</mongoFirstIp>
+    <mongoFirstPort>27020</mongoFirstPort>
+    <mongoSecondIp>127.0.0.1</mongoSecondIp>
+    <mongoSecondPort>27020</mongoSecondPort>
+    <mongoThirdIp>127.0.0.1</mongoThirdIp>
+    <mongoThirdPort>27020</mongoThirdPort>
+    <mongoUsername></mongoUsername>
+    <mongoPassword></mongoPassword>
+    <mongoDbName>WeRead</mongoDbName>
     <neo4jIp>127.0.0.1</neo4jIp>
     <neo4jPort>7687</neo4jPort>
     <neo4jUsername>neo4j</neo4jUsername>

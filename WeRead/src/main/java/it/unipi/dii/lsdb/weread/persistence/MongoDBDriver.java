@@ -8,6 +8,7 @@ import it.unipi.dii.lsdb.weread.model.*;
 
 import com.mongodb.*;
 import com.mongodb.client.*;
+import com.mongodb.client.model.*;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import org.bson.Document;
@@ -16,15 +17,19 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.DateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -49,7 +54,19 @@ public class MongoDBDriver {
     private String password;
     private String dbName;
 
-    private MongoDBDriver(ConfigurationParameters configurationParameters) {
+    /*
+    private class DateTimeAdapter implements JsonDeserializer<LocalDateTime>{
+        @Override
+        public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            if(json.getAsJsonPrimitive().getAsString().equals(""))
+                return LocalDateTime.now();
+            return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
+        }
+    }*/
+
+    //private MongoDBDriver(ConfigurationParameters configurationParameters) {
+    private MongoDBDriver() {
+        /*
         this.firstIp = configurationParameters.getMongoFirstIp();
         this.firstPort = configurationParameters.getMongoFirstPort();
         this.secondIp = configurationParameters.getMongoSecondIp();
@@ -58,38 +75,33 @@ public class MongoDBDriver {
         this.thirdPort = configurationParameters.getMongoThirdPort();
         this.username = configurationParameters.getMongoUsername();
         this.password = configurationParameters.getMongoPassword();
-        this.dbName = configurationParameters.getMongoDbName();
+        this.dbName = configurationParameters.getMongoDbName();*/
+        this.dbName = "WeRead";
     }
 
-    /* risolto usando Date
-    //we need to establish how the LocalDateTime must be deserialized
-    private class DateTimeAdapter implements JsonDeserializer<LocalDateTime>{
-        @Override
-        public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-        }
-    }*/
-
     public static MongoDBDriver getInstance() {
-        if(instance == null){
-            instance = new MongoDBDriver(Utils.readConfigurationParameters());
+        if (instance == null) {
+            instance = new MongoDBDriver();
+            //instance = new MongoDBDriver(Utils.readConfigurationParameters());
         }
         return instance;
     }
 
-    public boolean startConnection(){
-        try{
+    public boolean startConnection() {
+        try {
+            /*
             String string = "mongodb://";
             if(!username.equals("")){
                 string += username + ":" + password + "@";
             }
-            string += firstIp + ":" + firstPort + ", " + secondIp + ":" + secondPort + ", " + thirdIp + ":" + thirdPort;
+            string += firstIp + ":" + firstPort + ", " + secondIp + ":" + secondPort + ", " + thirdIp + ":" + thirdPort;*/
+            String string = "mongodb://localhost:27017";
             ConnectionString connectionString = new ConnectionString(string);
             MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
                     .readPreference(ReadPreference.secondaryPreferred())
                     .retryWrites(true)
-                    .writeConcern(WriteConcern.W3)
+                    .writeConcern(WriteConcern.W1) //W<x> dipende da quante repliche abbiamo, e quindi in quante repliche scrivere
                     .build();
             mongoClient = MongoClients.create(mongoClientSettings);
 
@@ -98,10 +110,9 @@ public class MongoDBDriver {
             pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                     fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-            userCollection = database.getCollection("user");
-            bookCollection = database.getCollection("book");
-        }
-        catch (Exception ex) {
+            userCollection = database.getCollection("users");
+            bookCollection = database.getCollection("books");
+        } catch (Exception ex) {
             System.out.println("MongoDB is not available");
             return false;
         }
@@ -452,7 +463,7 @@ public class MongoDBDriver {
     }
 
     //returns a list of list of objects. Each list is composed as [title | author | imageURL | averageRating]
-    public List<List<Object>> topAvgRatingBooks(int booksNumber){
+    public List<Map<String, Object>> topAvgRatingBooks(int booksNumber){
         Gson gson = new Gson();
         //controllo che ci siano review
         Bson match = match(ne("reviews", new ArrayList<>()));
@@ -460,15 +471,81 @@ public class MongoDBDriver {
         Bson sort = sort(descending("averageRating"));
         Bson limit = limit(booksNumber);
         MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, project, sort, limit)).iterator();
-        List<List<Object>> ranking = new ArrayList<>();
+        //List<List<Object>> ranking = new ArrayList<>();
+        List<Map<String, Object>> ranking = new ArrayList<>();
         while(iterator.hasNext()){
             Document doc = iterator.next();
-            List<Object> res = new ArrayList<>();
-            res.add(doc.getString("title"));
-            res.add(doc.getString("author"));
-            res.add(doc.getString("imageURL"));
-            res.add(doc.getDouble("averageRating"));
+            //List<Object> res = new ArrayList<>();
+            Map<String, Object> res = new HashMap<>();
+            res.put("title", doc.getString("title"));
+            res.put("author", doc.getString("author"));
+            res.put("imageURL", doc.getString("imageURL"));
+            res.put("averageRating", doc.getDouble("averageRating"));
             ranking.add(res);
+        }
+        return ranking;
+    }
+
+    //if higher is true, we are searching for the users who assigned higher ratings in their reviews
+    //if higher is false, we are searching for the users who assigned lower ratings in their reviews
+    public List<Map<String, Object>> usernameListByAvgRating(int usersNumber, boolean higher){
+        //controllo che ci siano review
+        Bson match = match(ne("reviews", new ArrayList<>()));
+        Bson project = project(fields(excludeId(), include("username"), computed("averageRating", computed("$avg", "$reviews.rating"))));
+        Bson sort = (higher) ? sort(descending("averageRating")) : sort(ascending("averageRating"));
+        Bson limit = limit(usersNumber);
+        MongoCursor<Document> iterator = (MongoCursor<Document>) userCollection.aggregate(Arrays.asList(match, project, sort, limit)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("username", doc.getString("username"));
+            res.put("averageRating", doc.getDouble("averageRating"));
+            ranking.add(res);
+        }
+        return ranking;
+    }
+
+    public List<Map<String, Object>> userWithMoreReviews(int usersNumber){
+        //controllo che ci siano review
+        Bson match = match(ne("reviews", new ArrayList<>()));
+        Bson project = project(fields(excludeId(), include("username"), computed("numReviews", computed("$size", "$reviews"))));
+        Bson sort = sort(descending("numReviews"));
+        Bson limit = limit(usersNumber);
+        MongoCursor<Document> iterator = (MongoCursor<Document>) userCollection.aggregate(Arrays.asList(match, project, sort, limit)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("username", doc.getString("username"));
+            res.put("numReviews", doc.getDouble("numReviews"));
+            ranking.add(res);
+        }
+        return ranking;
+    }
+
+    //returns a list of review, each review have contains partial information, likers not included for the sake of performance
+    public List<Review> moreLikedReviews(int reviewsNumber){
+        Gson gson = new Gson();
+        Bson match = match(ne("reviews", new ArrayList<>()));
+        Bson unwind = unwind("$reviews");
+        Bson project = project(fields(excludeId(),
+                computed("reviewId", "$reviews.reviewId"),
+                computed("title", "$reviews.title"),
+                computed("text", "$reviews.text"),
+                computed("rating", "$reviews.rating"),
+                computed("time", "$reviews.time"),
+                computed("numLikes", "$reviews.numLikes")));
+        Bson sort = sort(descending("numLikes"));
+        Bson limit = limit(reviewsNumber);
+
+        List<Document> res = (List<Document>) userCollection.aggregate(Arrays.asList(match, unwind, project, sort, limit)).into(new ArrayList());
+        Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
+        List<Review> ranking = null;
+        try{
+            ranking = gson.fromJson(gson.toJson(res), reviewListType);
+        } catch(JsonSyntaxException e){
+            e.printStackTrace();
         }
         return ranking;
     }
