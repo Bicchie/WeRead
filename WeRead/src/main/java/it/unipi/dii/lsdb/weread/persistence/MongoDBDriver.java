@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Accumulators.*;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
@@ -283,7 +284,7 @@ public class MongoDBDriver {
                 .append("author", book.getAuthor())
                 .append("imageURL", book.getImageURL());
         Bson match = eq("username", username);
-        Bson push = push("favourite", toAdd);
+        Bson push = Updates.push("favourite", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
@@ -313,7 +314,7 @@ public class MongoDBDriver {
                 .append("likers", review.getLikers());
         //first I update users collection
         Bson match = eq("username", review.getReviewer());
-        Bson push = push("reviews", toAdd);
+        Bson push = Updates.push("reviews", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
@@ -321,7 +322,7 @@ public class MongoDBDriver {
         //update books collection
         toAdd.remove("title");
         match = eq("isbn", review.getReviewedBookIsbn());
-        push = push("reviews", toAdd);
+        push = Updates.push("reviews", toAdd);
         res = bookCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1) {
             //rimuovi review da utente??
@@ -352,7 +353,7 @@ public class MongoDBDriver {
     public boolean addLikeReview(Review review, String liker){
         //update users collection
         Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
-        Bson push = push("reviews.$.likers", liker);
+        Bson push = Updates.push("reviews.$.likers", liker);
         Bson inc = inc("reviews.$.numLikes", 1);
         UpdateResult res = userCollection.updateOne(match, combine(inc, push));
         if(res.getModifiedCount() < 1)
@@ -369,7 +370,7 @@ public class MongoDBDriver {
     public boolean removeLikeReview(Review review, String unliker){
         //update users collection
         Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
-        Bson push = push("reviews.$.likers", unliker);
+        Bson push = Updates.push("reviews.$.likers", unliker);
         Bson dec = inc("reviews.$.numLikes", -1);
         UpdateResult res = userCollection.updateOne(match, combine(dec, push));
         if(res.getModifiedCount() < 1)
@@ -387,7 +388,7 @@ public class MongoDBDriver {
                 .append("numLikes", rl.getNumLikes())
                 .append("books", rl.getBooks());
         Bson match = eq("username", user);
-        Bson push = push("readingList", toAdd);
+        Bson push = Updates.push("readingList", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
@@ -410,7 +411,7 @@ public class MongoDBDriver {
                 .append("author", book.getAuthor())
                 .append("imageURL", book.getImageURL());
         Bson match = and(eq("username", username), eq("readingList.name", rlName));
-        Bson push = push("readingList.$.books", toAdd);
+        Bson push = Updates.push("readingList.$.books", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
@@ -524,7 +525,7 @@ public class MongoDBDriver {
         return ranking;
     }
 
-    //returns a list of review, each review have contains partial information, likers not included for the sake of performance
+    //returns a list of review, each review contains partial information, likers (= null) not included for the sake of performance
     public List<Review> moreLikedReviews(int reviewsNumber){
         Gson gson = new Gson();
         Bson match = match(ne("reviews", new ArrayList<>()));
@@ -541,12 +542,101 @@ public class MongoDBDriver {
 
         List<Document> res = (List<Document>) userCollection.aggregate(Arrays.asList(match, unwind, project, sort, limit)).into(new ArrayList());
         Type reviewListType = new TypeToken<ArrayList<Review>>(){}.getType();
-        List<Review> ranking = null;
-        try{
-            ranking = gson.fromJson(gson.toJson(res), reviewListType);
-        } catch(JsonSyntaxException e){
-            e.printStackTrace();
+        List<Review> ranking = gson.fromJson(gson.toJson(res), reviewListType);
+        return ranking;
+    }
+
+    //returns a list of reading lists, each rl contains partial information, books (= null) not included for the sake of performance
+    public List<ReadingList> moreLikedReadingLists(int rlNumber){
+        Gson gson = new Gson();
+        Bson match = match(ne("readingList", new ArrayList<>()));
+        Bson unwind = unwind("readingList");
+        Bson project = project(fields(excludeId(),
+                computed("name", "$readingList.name"),
+                computed("numLikes", "$readingList.numLikes")));
+        Bson sort = sort(descending("numLikes"));
+        Bson limit = limit(rlNumber);
+
+        List<Document> res = (List<Document>) userCollection.aggregate(Arrays.asList(match, unwind, project, sort, limit)).into(new ArrayList());
+        Type rlListType = new TypeToken<ArrayList<ReadingList>>(){}.getType();
+        List<ReadingList> ranking = gson.fromJson(gson.toJson(res), rlListType);
+        return ranking;
+    }
+
+    //Average length in pages of Books given the Category per year
+    public List<Map<String, Object>> bookLenPerYear(String category){
+        Bson match = match(eq("category", category));
+        Bson group = group("$publicationYear", avg("avgLength", "$numPages"));
+        Bson project = project(fields(excludeId(), computed("publicationYear", "$_id"), include("avgLength")));
+        Bson sort = sort(descending("publicationYear"));
+
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, group, project, sort)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("publicationYear", doc.getString("publicationYear"));
+            res.put("avgLength", doc.getDouble("avgLength"));
+            ranking.add(res);
         }
         return ranking;
     }
+
+    public List<Map<String, Object>> howManyBooksPerLanguage(){
+        Bson group = group("$language", sum("count", 1));
+        Bson project = project(fields(excludeId(), computed("language", "$_id"), include("count")));
+        Bson sort = sort(descending("count"));
+
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(group, project, sort)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("language", doc.getString("language"));
+            res.put("count", doc.getInteger("count"));
+            ranking.add(res);
+        }
+        return ranking;
+    }
+
+    //How many books are published per year by a certain publisher
+    public List<Map<String, Object>> howManyBooksPerYear(String publisher){
+        Bson match = match(eq("publisher", publisher));
+        Bson group = group("$publicationYear", sum("count", 1));
+        Bson project = project(fields(excludeId(), computed("publicationYear", "$_id"), include("count")));
+        Bson sort = sort(descending("publicationYear"));
+
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, group, project, sort)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("publicationYear", doc.getString("publicationYear"));
+            res.put("count", doc.getInteger("count"));
+            ranking.add(res);
+        }
+        return ranking;
+    }
+
+    //List of authors with greatest average rating of their books
+    public List<Map<String, Object>> authorsWithHigherAvgRating(int authorsNumber){
+        Bson match = match(ne("reviews", new ArrayList<>()));
+        Bson unwind = unwind("$reviews");
+        Bson group = group("$author", avg("avg_rat", "$reviews.rating"));
+        Bson project = project(fields(excludeId(), computed("author", "$_id"), include("avg_rat")));
+        Bson sort = sort(descending("avg_rat"));
+        Bson limit = limit(authorsNumber);
+
+        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, unwind, group, project, sort, limit)).iterator();
+        List<Map<String, Object>> ranking = new ArrayList<>();
+        while(iterator.hasNext()){
+            Document doc = iterator.next();
+            Map<String, Object> res = new HashMap<>();
+            res.put("author", doc.getString("author"));
+            res.put("avg_rat", doc.getDouble("avg_rat"));
+            ranking.add(res);
+        }
+        return ranking;
+    }
+
 }
