@@ -28,6 +28,19 @@ public class User {
         this.reviews = reviews;
     }
 
+    //constructor for new user
+    public User(String username, String name, String surname, String email, String password, boolean isAdministrator){
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.isAdministrator = isAdministrator;
+        favourite = new ArrayList<>();
+        reviews = new ArrayList<>();
+        readingList = new ArrayList<>();
+    }
+
     public String getUsername() {
         return username;
     }

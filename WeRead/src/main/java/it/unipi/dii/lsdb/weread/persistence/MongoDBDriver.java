@@ -133,9 +133,9 @@ public class MongoDBDriver {
                 .append("password", u.getPassword())
                 .append("numReviews", 0)
                 .append("isAdministrator", u.getIsAdministrator())
-                .append("favorite", Arrays.asList())
-                .append("reviews", Arrays.asList())
-                .append("readingList", Arrays.asList());
+                .append("favorite", u.getFavourite())
+                .append("reviews", u.getReviewList())
+                .append("readingList", u.getReadingLists());
         try {
             userCollection.insertOne(doc);
         } catch (Exception e){
