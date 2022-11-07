@@ -1,7 +1,9 @@
 package it.unipi.dii.lsdb.weread.utils;
 
+import it.unipi.dii.lsdb.weread.controller.BookFavoriteSnapshotController;
 import it.unipi.dii.lsdb.weread.controller.BookPreviewController;
 import it.unipi.dii.lsdb.weread.controller.ReviewController;
+import it.unipi.dii.lsdb.weread.controller.UserPageController;
 import it.unipi.dii.lsdb.weread.model.Book;
 import it.unipi.dii.lsdb.weread.model.Review;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
@@ -14,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -178,6 +181,8 @@ public class Utils {
      * @param bookList   Recipes to show
      */
     public static void addRBookPreviewsBig(VBox vBox, List<Book> bookList) {
+        vBox.setSpacing(20);
+        vBox.setStyle("-fx-padding: 10px");
         for (Book rev : bookList) {
             /*HBox row = new HBox();
             row.setStyle("-fx-padding: 10px");
@@ -185,6 +190,39 @@ public class Utils {
             Pane revPane = createBookPreviewBig(rev);
             vBox.getChildren().add(revPane);
             ;
+        }
+    }
+
+    /**
+     * This function create a pane that contains a book snapshot
+     * @param book  recipe to display in the snapshot
+     * @return
+     */
+    private static Pane createFavoriteBookSnapshot(Book book)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/bookFavoriteSnapshot.fxml"));
+            pane = (Pane) loader.load();
+            BookFavoriteSnapshotController bookFavoriteSnapshotController = (BookFavoriteSnapshotController) loader.getController();
+            bookFavoriteSnapshotController.setFavoriteBook(book);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return pane;
+    }
+
+    /**
+     * Function that adds the book favorite snapshot for each favorite books of the user
+     * @param hBox      hBox in which I have to show the snapshots
+     * @param bookList   books to show
+     */
+    public static void showFavoriteBooks(HBox hBox, List<Book> bookList) {
+        System.out.println(hBox.getChildren());
+        for (Book book : bookList) {
+            Pane bookPane = createFavoriteBookSnapshot(book);
+            hBox.getChildren().add(bookPane);
         }
     }
 }

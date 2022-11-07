@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="favBookPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="170.0" prefWidth="202.0" style="-fx-background-color: white; -fx-background-position: center; -fx-border-style: solid; -fx-border-radius: 50; -fx-border-width: 3px; -fx-border-color: D24B2E;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.BookFavoriteSnapshotController">
+    <children>
+      <ImageView fx:id="favBookImage" fitHeight="172.0" fitWidth="66.0" layoutX="23.0" layoutY="21.0" pickOnBounds="true" preserveRatio="true"/>
+      <Label fx:id="bookTitle" layoutX="96.0" layoutY="50.0" prefHeight="99.0" prefWidth="78.0" text="BOOK TITLE" textAlignment="CENTER" wrapText="true">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="bookAuthor" layoutX="23.0" layoutY="123.0" prefHeight="36.0" prefWidth="72.0" text="Author" wrapText="true">
+         <font>
+            <Font name="System Italic" size="10.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="39.0" fitWidth="36.0" layoutX="117.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@img/favoriteIcon.png" />
+         </image>
+      </ImageView>
+    </children>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+</AnchorPane>

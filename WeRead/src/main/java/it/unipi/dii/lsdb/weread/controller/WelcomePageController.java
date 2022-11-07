@@ -71,7 +71,6 @@ public class WelcomePageController {
      * @param actionEvent   The event that occurs when the user click the Login button
      */
     private void handleLoginButtonAction(MouseEvent actionEvent) {
-        System.out.println("Sono dentro a LOGIN BUTTON");
         if (loginUsernameTextField.getText().equals("") || loginPasswordField.getText().equals(""))
         {
             Utils.showErrorAlert("You need to insert all the values!");
@@ -85,7 +84,7 @@ public class WelcomePageController {
                 newSession.setLoggedUser(user);
                 System.out.println("Login Done:" + loginUsernameTextField.getText());
 
-                // CAMBIO SCENA
+                UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
             }
             else
             {
