@@ -34,7 +34,7 @@
                   </ImageView>
                   <ImageView fitHeight="44.0" fitWidth="44.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@img/homeIcon.png" />
+                        <Image url="@img/homeIconDeprecated.png" />
                      </image>
                   </ImageView>
                   <ImageView fitHeight="43.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">

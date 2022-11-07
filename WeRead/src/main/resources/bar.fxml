@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane prefHeight="31.0" prefWidth="600.0" style="-fx-background-color: D24B2E;">
+         <left>
+            <ImageView fitHeight="63.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER_LEFT">
+               <image>
+                  <Image url="@img/icon.png" />
+               </image>
+            </ImageView>
+         </left>
+         <center>
+            <HBox alignment="CENTER_RIGHT" prefHeight="70.0" prefWidth="541.0" BorderPane.alignment="CENTER" />
+         </center>
+         <right>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <ImageView fitHeight="36.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@img/bookSearchIcon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@img/homeIcon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@img/userIcon.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </HBox>
+         </right>
+      </BorderPane>
+   </children>
+</VBox>
