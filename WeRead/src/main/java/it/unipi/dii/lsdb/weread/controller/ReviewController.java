@@ -19,7 +19,7 @@ import java.util.List;
 public class ReviewController {
     @FXML private AnchorPane reviewPane;
     @FXML private Label reviewAuthor;
-    @FXML private Label reviewedBook;
+    //@FXML private Label reviewedBook;
     @FXML private Label rating;
     @FXML private Label numLikes;
     @FXML private Text text;
@@ -34,15 +34,15 @@ public class ReviewController {
         mongoDBDriver = MongoDBDriver.getInstance();
         session = Session.getInstance();
         //setta i vari click ai label
-        reviewAuthor.setOnMouseClicked(mouseEvent -> showUserPage(mouseEvent));
-        reviewedBook.setOnMouseClicked(mouseEvent -> showBookPage(mouseEvent));
+        //reviewAuthor.setOnMouseClicked(mouseEvent -> showUserPage(mouseEvent));
+        //reviewedBook.setOnMouseClicked(mouseEvent -> showBookPage(mouseEvent));
         numLikes.setOnMouseClicked(mouseEvent -> showLikers(mouseEvent));
     }
 
     public void setReview(Review r){
         this.review = r;
         reviewAuthor.setText(review.getReviewer());
-        reviewedBook.setText(review.getBookTitle());
+        //reviewedBook.setText(review.getBookTitle());
         rating.setText(review.getRating() + "/5");
         numLikes.setText(String.valueOf(review.getNumLikes()));
         text.setText(review.getText());
@@ -53,13 +53,16 @@ public class ReviewController {
             likeButton.setText("UNLIKE");
         else
             likeButton.setText("LIKE");
+        //if the logged user has written the comment, he/she can't like it
+        if(review.getReviewer().equals(session.getLoggedUser().getUsername()))
+            likeButton.setDisable(true);
     }
 
-    private void showUserPage(MouseEvent mouseEvent){
+    /*private void showUserPage(MouseEvent mouseEvent){
         User u = mongoDBDriver.getUserInfo(review.getReviewer());
         UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
         userPageController.setUser(u);
-    }
+    }*/
 
     private void showBookPage(MouseEvent mouseEvent){
         Book b = mongoDBDriver.getBookInformation(review.getReviewedBookIsbn());

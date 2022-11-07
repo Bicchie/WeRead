@@ -3,12 +3,16 @@ package it.unipi.dii.lsdb.weread.utils;
 import it.unipi.dii.lsdb.weread.controller.BookPreviewController;
 import it.unipi.dii.lsdb.weread.controller.ReviewController;
 import it.unipi.dii.lsdb.weread.model.Book;
+import it.unipi.dii.lsdb.weread.model.ReadingList;
 import it.unipi.dii.lsdb.weread.model.Review;
+import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
+import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 
 import com.thoughtworks.xstream.XStream;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -121,11 +125,16 @@ public class Utils {
      * @param review    recipe to display in the snapshot
      * @return
      */
-    private static Pane createReviewBig(Review review)
+    private static Pane createReviewBig(Review review, boolean bookPage)
     {
         Pane pane = null;
+        String fxml;
+        if(bookPage)
+            fxml = "/review_bookPage.fxml";
+        else
+            fxml = "/review.fxml";
         try {
-            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/review.fxml"));
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource(fxml));
             pane = (Pane) loader.load();
             ReviewController reviewController =
                     (ReviewController) loader.getController();
@@ -141,14 +150,10 @@ public class Utils {
      * @param vBox      VBox in which I have to show the snapshots
      * @param reviews   Recipes to show
      */
-    public static void addReviewsBig(VBox vBox, List<Review> reviews) {
+    public static void addReviewsBig(VBox vBox, List<Review> reviews, boolean bookPage) {
         for (Review rev : reviews) {
-            /*HBox row = new HBox();
-            row.setStyle("-fx-padding: 10px");
-            row.setSpacing(20);*/
-            Pane revPane = createReviewBig(rev);
+            Pane revPane = createReviewBig(rev, bookPage);
             vBox.getChildren().add(revPane);
-            ;
         }
     }
 
@@ -177,7 +182,7 @@ public class Utils {
      * @param vBox      VBox in which I have to show the snapshots
      * @param bookList   Recipes to show
      */
-    public static void addRBookPreviewsBig(VBox vBox, List<Book> bookList) {
+    public static void addBookPreviewsBig(VBox vBox, List<Book> bookList) {
         for (Book rev : bookList) {
             /*HBox row = new HBox();
             row.setStyle("-fx-padding: 10px");
@@ -185,6 +190,110 @@ public class Utils {
             Pane revPane = createBookPreviewBig(rev);
             vBox.getChildren().add(revPane);
             ;
+        }
+    }
+
+    public static String buildReviewId(String username, String isbn){return username + ":" + isbn;}
+
+    //check the consistency of the queries in both the databases
+    public static boolean addBookToFavorite(String username, Book book){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+
+        if(mongoDBDriver.addBookToFavorite(username, book)){
+            if(!neo4jDriver.favoritesBook(username, book.getIsbn())) {
+                //must remove the copy in mongodb
+                mongoDBDriver.removeBookFromFavorite(username, book);
+                showErrorAlert("Error in adding to favorite books in neo4j");
+                return false;
+            }
+            else
+                return true;
+        }
+        else{
+            showErrorAlert("Error in adding to favorite books in mongodb");
+            return false;
+        }
+    }
+
+    //check the consistency of the queries in both the databases
+    public static boolean removeBookFromFavorite(String username, Book book){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+
+        if(mongoDBDriver.removeBookFromFavorite(username, book)){
+            if(!neo4jDriver.removeFavoriteBook(username, book.getIsbn())) {
+                //must remove the copy in mongodb
+                mongoDBDriver.addBookToFavorite(username, book);
+                showErrorAlert("Error in removing from favorite books in neo4j");
+                return false;
+            }
+            else
+                return true;
+        }
+        else{
+            showErrorAlert("Error in removing from favorite books in mongodb");
+            return false;
+        }
+    }
+
+    //check the consistency of the queries in both the databases
+    public static boolean addBookToReadingList(String username, String rlName, Book book){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+
+        if(mongoDBDriver.addBookToReadingList(username, rlName, book)){
+            if(!neo4jDriver.readingListHasBook(username+":"+rlName, book.getIsbn())){
+                mongoDBDriver.removeBookFromReadingList(username, rlName, book);
+                showErrorAlert("Error in adding a book to a reading list in neo4j");
+                return false;
+            }
+            else
+                return true;
+        }
+        else{
+            showErrorAlert("Error in adding a book to a reading list in mongodb");
+            return false;
+        }
+    }
+
+    //check the consistency of the queries in both the databases
+    public static boolean removeBookFromReadingList(String username, String rlName, Book book){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+
+        if(mongoDBDriver.removeBookFromReadingList(username, rlName, book)){
+            if(!neo4jDriver.removeBookFromReadingList(book.getIsbn(), username+":"+rlName)){
+                mongoDBDriver.addBookToReadingList(username, rlName, book);
+                showErrorAlert("Error in removing a book from a reading list in neo4j");
+                return false;
+            }
+            else
+                return true;
+        }
+        else{
+            showErrorAlert("Error in removing a book from a reading list in mongodb");
+            return false;
+        }
+    }
+
+    //check the consistency of the queries in both the databases
+    public static boolean createNewReadingList(String username, ReadingList rl){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+
+        if(mongoDBDriver.addNewReadingList(rl, username)){
+            if(!neo4jDriver.newReadingList(new ReadingList(username + ":" + rl.getName()))){
+                mongoDBDriver.removeReadingList(rl, username);
+                showErrorAlert("Error in creating a new reading list in neo4j");
+                return false;
+            }
+            else
+                return true;
+        }
+        else{
+            showErrorAlert("Error in creating a new reading list in mongodb");
+            return false;
         }
     }
 }
