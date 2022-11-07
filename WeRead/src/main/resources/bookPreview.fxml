@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="bookPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" style="-fx-background-color: white; -fx-background-position: center; -fx-border-style: solid; -fx-border-radius: 50; -fx-border-width: 3px; -fx-border-color: D24B2E;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.BookPreviewController">
+    <children>
+      <ImageView fitHeight="49.0" fitWidth="68.0" layoutX="226.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@img/category_icon.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="bookTitle" layoutX="250.0" layoutY="21.0" prefHeight="39.0" prefWidth="227.0" text="BOOK TITLE" textAlignment="CENTER" textOverrun="CLIP">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="bookImage" fitHeight="159.0" fitWidth="164.0" layoutX="31.0" layoutY="21.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="bookAuthor" layoutX="277.0" layoutY="78.0" prefHeight="19.0" prefWidth="202.0" text="Author" textOverrun="CLIP">
+         <font>
+            <Font name="System Italic" size="15.0" />
+         </font>
+      </Label>
+      <Label fx:id="bookCategory" layoutX="275.0" layoutY="136.0" prefHeight="19.0" prefWidth="202.0" text="Category" textAlignment="CENTER" textOverrun="CLIP">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="39.0" fitWidth="36.0" layoutX="232.0" layoutY="71.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@img/author_icon.png" />
+         </image>
+      </ImageView>
+    </children>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+</AnchorPane>

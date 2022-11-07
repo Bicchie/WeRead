@@ -3,9 +3,14 @@ package it.unipi.dii.lsdb.weread.utils;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 
 import com.thoughtworks.xstream.XStream;
+import javafx.event.Event;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -16,8 +21,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Utils {
     /**
@@ -76,5 +83,29 @@ public class Utils {
         ImageView imageView = new ImageView(new Image("/img/error.png"));
         alert.setGraphic(imageView);
         alert.show();
+    }
+
+    /**
+     * Snippet of code for jumping in the next scene
+     * Every scene has associated its specific controller
+     * @param fileName      The name of the file in which i can obtain the GUI (.fxml)
+     * @param event         The event that leads to change the scene
+     * @return The new controller, because I need to pass some parameters
+     */
+    public static Object changeScene (String fileName, Event event)
+    {
+        Scene scene = null;
+        FXMLLoader loader = null;
+        try {
+            loader=new FXMLLoader(Utils.class.getResource(fileName));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            scene = new Scene(loader.load());
+            stage.setScene(scene);
+            stage.show();
+            return loader.getController();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
