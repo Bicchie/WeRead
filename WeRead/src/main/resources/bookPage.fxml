@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -10,8 +16,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.BookPageController">
    <children>
       <BorderPane prefHeight="31.0" prefWidth="600.0" style="-fx-background-color: D24B2E;">
          <left>
@@ -32,54 +37,277 @@
                         <Image url="@img/bookSearchIcon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="44.0" fitWidth="44.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@img/homeIconDeprecated.png" />
+                        <Image url="@img/homeIcon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="43.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@img/user3.png" />
+                        <Image url="@img/userIcon.png" />
                      </image>
                   </ImageView>
                </children>
             </HBox>
          </right>
       </BorderPane>
-      <ScrollPane prefHeight="345.0">
+      <ScrollPane prefHeight="469.0" prefWidth="700.0">
          <content>
-            <VBox prefHeight="506.0" prefWidth="583.0">
+            <VBox prefHeight="642.0" prefWidth="681.0">
                <children>
-                  <Pane prefHeight="55.0" prefWidth="583.0">
+                  <Pane prefHeight="71.0" prefWidth="686.0">
                      <children>
-                        <Text layoutX="10.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Title" textAlignment="CENTER" wrappingWidth="562.7081546783447">
+                        <Text fx:id="bookTitle" layoutX="62.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Title" textAlignment="CENTER" wrappingWidth="562.7081546783447">
                            <font>
                               <Font size="30.0" />
                            </font>
                         </Text>
                      </children>
                   </Pane>
-                  <HBox prefHeight="144.0" prefWidth="583.0">
+                  <HBox prefHeight="165.0" prefWidth="659.0">
                      <children>
-                        <Pane prefHeight="200.0" prefWidth="200.0">
+                        <Pane prefHeight="145.0" prefWidth="194.0">
                            <children>
-                              <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fx:id="bookImage" fitHeight="144.0" fitWidth="191.0" pickOnBounds="true" preserveRatio="true" />
                            </children>
                         </Pane>
-                        <Pane prefHeight="200.0" prefWidth="200.0" />
-                        <Pane prefHeight="200.0" prefWidth="200.0" />
+                        <Pane prefHeight="147.0" prefWidth="237.0">
+                           <children>
+                              <VBox prefHeight="145.0" prefWidth="249.0">
+                                 <children>
+                                    <HBox prefHeight="41.0" prefWidth="249.0">
+                                       <children>
+                                          <ImageView fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/author_icon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </ImageView>
+                                          <Label fx:id="bookAuthor" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 7;" text="Author">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="41.0" prefWidth="274.0">
+                                       <children>
+                                          <ImageView fitHeight="53.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/category_icon.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Label fx:id="bookCategory" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 3;" text="Category">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="41.0" prefWidth="274.0">
+                                       <children>
+                                          <ImageView fitHeight="30.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/language_icon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets left="3.0" />
+                                             </HBox.margin>
+                                          </ImageView>
+                                          <Label fx:id="bookLanguage" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 6;" text="Language">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="41.0" prefWidth="274.0">
+                                       <children>
+                                          <ImageView fitHeight="52.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/homeIcon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                             <rotationAxis>
+                                                <Point3D />
+                                             </rotationAxis>
+                                          </ImageView>
+                                          <Label fx:id="bookPublisher" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 3;" text="Publisher">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="135.0" prefWidth="249.0">
+                           <children>
+                              <VBox prefHeight="145.0" prefWidth="249.0">
+                                 <children>
+                                    <HBox prefHeight="41.0" prefWidth="249.0">
+                                       <children>
+                                          <ImageView fitHeight="34.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/numPages_icon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </ImageView>
+                                          <Label fx:id="numPages" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 5;" text="NumPages">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="41.0" prefWidth="274.0">
+                                       <children>
+                                          <ImageView fitHeight="35.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/calendar2_icon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets left="3.0" />
+                                             </HBox.margin>
+                                          </ImageView>
+                                          <Label fx:id="publicationYear" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 6;" text="PublicationYear">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="35.0" prefWidth="249.0">
+                                       <children>
+                                          <ImageView fitHeight="37.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/like_icon.png" />
+                                             </image>
+                                             <HBox.margin>
+                                                <Insets left="3.0" />
+                                             </HBox.margin>
+                                          </ImageView>
+                                          <Label fx:id="numFavorite" prefHeight="36.0" prefWidth="207.0" style="-fx-label-padding: 6;" text="numFavorite">
+                                             <font>
+                                                <Font name="System Italic" size="14.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox prefHeight="29.0" prefWidth="249.0">
+                                       <children>
+                                          <Button fx:id="favoriteButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="55.0" prefWidth="124.0" text="Add to Favorites">
+                                             <HBox.margin>
+                                                <Insets left="1.0" right="1.0" />
+                                             </HBox.margin>
+                                             <padding>
+                                                <Insets left="1.0" />
+                                             </padding>
+                                          </Button>
+                                          <ComboBox fx:id="rlBox" editable="true" prefHeight="31.0" prefWidth="137.0" promptText="new ReadingList">
+                                             <HBox.margin>
+                                                <Insets left="1.0" right="1.0" />
+                                             </HBox.margin>
+                                          </ComboBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </Pane>
                      </children>
                   </HBox>
-                  <Pane prefHeight="141.0" prefWidth="583.0">
+                  <Pane prefHeight="141.0" prefWidth="677.0">
                      <children>
-                        <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book description" wrappingWidth="168.4224338531494">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Text>
+                        <VBox layoutX="7.0" prefHeight="118.0" prefWidth="673.0">
+                           <children>
+                              <Label text="Book Description">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Text fx:id="bookDescription" strokeType="OUTSIDE" strokeWidth="0.0" text="Book description" wrappingWidth="661.5652713775635" />
+                           </children>
+                        </VBox>
                      </children>
                   </Pane>
-                  <Pane prefHeight="200.0" prefWidth="200.0" />
+                  <Pane prefHeight="151.0" prefWidth="681.0">
+                     <children>
+                        <VBox prefHeight="152.0" prefWidth="681.0">
+                           <children>
+                              <Label fx:id="reviewLabel" alignment="CENTER" prefHeight="21.0" prefWidth="682.0" text="Leave a review!" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <TextArea fx:id="reviewText" prefHeight="100.0" prefWidth="519.0" />
+                                    <VBox prefHeight="100.0" prefWidth="189.0">
+                                       <children>
+                                          <Label alignment="CENTER" prefHeight="17.0" prefWidth="197.0" text="Rate it!">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <ComboBox fx:id="ratingBox" prefHeight="25.0" prefWidth="200.0" promptText="Rating" visibleRowCount="5" />
+                                          <Button fx:id="reviewButton" alignment="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="197.0" style="-fx-background-color: D24B2E;" text="OK" textAlignment="CENTER">
+                                             <VBox.margin>
+                                                <Insets top="20.0" />
+                                             </VBox.margin>
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                       <padding>
+                                          <Insets left="3.0" right="1.0" />
+                                       </padding>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children></Pane>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <VBox fx:id="reviewsVbox" prefHeight="184.0" prefWidth="683.0">
+                           <children>
+                              <Label prefHeight="17.0" prefWidth="681.0" text="Users said about this book...">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </Pane>
                </children>
             </VBox>
          </content>

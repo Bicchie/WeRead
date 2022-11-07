@@ -1,5 +1,9 @@
 package it.unipi.dii.lsdb.weread.utils;
 
+import it.unipi.dii.lsdb.weread.controller.BookPreviewController;
+import it.unipi.dii.lsdb.weread.controller.ReviewController;
+import it.unipi.dii.lsdb.weread.model.Book;
+import it.unipi.dii.lsdb.weread.model.Review;
 import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 
 import com.thoughtworks.xstream.XStream;
@@ -10,6 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -24,6 +30,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 
 public class Utils {
@@ -107,5 +114,77 @@ public class Utils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * This function create a pane that contains a review snapshot
+     * @param review    recipe to display in the snapshot
+     * @return
+     */
+    private static Pane createReviewBig(Review review)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/review.fxml"));
+            pane = (Pane) loader.load();
+            ReviewController reviewController =
+                    (ReviewController) loader.getController();
+            reviewController.setReview(review);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pane;
+    }
+
+    /**
+     * Function that adds the snapshots of the reviews, 1 for each row
+     * @param vBox      VBox in which I have to show the snapshots
+     * @param reviews   Recipes to show
+     */
+    public static void addReviewsBig(VBox vBox, List<Review> reviews) {
+        for (Review rev : reviews) {
+            /*HBox row = new HBox();
+            row.setStyle("-fx-padding: 10px");
+            row.setSpacing(20);*/
+            Pane revPane = createReviewBig(rev);
+            vBox.getChildren().add(revPane);
+            ;
+        }
+    }
+
+    /**
+     * This function create a pane that contains a book snapshot
+     * @param book    recipe to display in the snapshot
+     * @return
+     */
+    private static Pane createBookPreviewBig(Book book)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/bookPreview.fxml"));
+            pane = (Pane) loader.load();
+            BookPreviewController bookPreviewController =
+                    (BookPreviewController) loader.getController();
+            bookPreviewController.setBook(book);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pane;
+    }
+
+    /**
+     * Function that adds the snapshots of the books, 1 for each row
+     * @param vBox      VBox in which I have to show the snapshots
+     * @param bookList   Recipes to show
+     */
+    public static void addRBookPreviewsBig(VBox vBox, List<Book> bookList) {
+        for (Book rev : bookList) {
+            /*HBox row = new HBox();
+            row.setStyle("-fx-padding: 10px");
+            row.setSpacing(20);*/
+            Pane revPane = createBookPreviewBig(rev);
+            vBox.getChildren().add(revPane);
+            ;
+        }
     }
 }
