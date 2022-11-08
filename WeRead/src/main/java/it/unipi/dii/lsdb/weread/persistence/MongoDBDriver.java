@@ -120,7 +120,7 @@ public class MongoDBDriver {
         return true;
     }
 
-    public void closeCollection(){
+    public void closeConnection(){
         if(mongoClient != null)
             mongoClient.close();
     }

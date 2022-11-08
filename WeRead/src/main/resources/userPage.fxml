@@ -68,12 +68,12 @@
                   </ScrollPane>
                   <ScrollPane layoutY="187.0" prefHeight="128.0" prefWidth="536.0">
                      <content>
-                        <HBox fx:id="reviewsHbox" prefHeight="112.0" prefWidth="622.0" />
+                        <HBox fx:id="reviewsHbox" prefHeight="112.0" prefWidth="622.0" spacing="20" style="-fx-background-color: white;" />
                      </content>
                   </ScrollPane>
                   <ScrollPane layoutX="1.0" layoutY="315.0" prefHeight="128.0" prefWidth="536.0">
                      <content>
-                        <HBox fx:id="readingListsHbox" prefHeight="112.0" prefWidth="592.0" />
+                        <HBox fx:id="readingListsHbox" prefHeight="112.0" prefWidth="592.0" spacing="20" style="-fx-background-color: white;" />
                      </content>
                   </ScrollPane>
                </children>

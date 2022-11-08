@@ -80,7 +80,7 @@ public class WelcomePageController {
             if (mongoDBDriver.checkLogin(loginUsernameTextField.getText(), loginPasswordField.getText()))
             {
                 Session newSession = Session.getInstance();
-                User user = new User(loginUsernameTextField.getText());
+                User user = mongoDBDriver.getUserInfo(loginUsernameTextField.getText());
                 newSession.setLoggedUser(user);
                 System.out.println("Login Done:" + loginUsernameTextField.getText());
 

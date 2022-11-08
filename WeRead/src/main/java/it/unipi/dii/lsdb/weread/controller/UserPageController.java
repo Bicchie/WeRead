@@ -58,8 +58,9 @@ public class UserPageController {
         homeIcon.setOnMouseClicked(mouseEvent -> clickOnHomeIcon(mouseEvent));
         //userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
 
-        List<Book> favoriteBooksList = mongoDBDriver.getFavoriteOfUser(loggedUser.getUsername());
-        Utils.showFavoriteBooks(favoriteBooksHbox,favoriteBooksList);
+        Utils.showFavoriteBooks(favoriteBooksHbox,loggedUser.getFavourite());
+        //Utils.showReadingLists(readingListsHbox,loggedUser.getReadingLists());
+        //Utils.showReviews(reviewsHbox,loggedUser.getReviewList());
 
     }
 

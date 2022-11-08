@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="110.0" prefWidth="284.0" style="-fx-background-color: white; -fx-background-position: center; -fx-border-style: solid; -fx-border-radius: 50; -fx-border-width: 3px; -fx-border-color: D24B2E;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.ReviewSnapshotController">
+    <children>
+      <Label fx:id="titleReview" layoutX="75.0" layoutY="10.0" prefHeight="34.0" prefWidth="184.0" text="TITLEEEEEEEEEEEEEEEEEEEEEE" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="textReview" layoutX="27.0" layoutY="39.0" prefHeight="59.0" prefWidth="229.0" text="blaa" wrapText="true">
+         <font>
+            <Font name="System Italic" size="11.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="39.0" fitWidth="36.0" layoutX="21.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@img/reviewIcon.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="ratingReview" layoutX="59.0" layoutY="18.0" prefHeight="17.0" prefWidth="0.0" text="5" />
+    </children>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+</AnchorPane>
