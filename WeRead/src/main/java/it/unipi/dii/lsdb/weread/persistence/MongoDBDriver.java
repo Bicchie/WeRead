@@ -133,7 +133,7 @@ public class MongoDBDriver {
                 .append("password", u.getPassword())
                 .append("numReviews", 0)
                 .append("isAdministrator", u.getIsAdministrator())
-                .append("favorite", u.getFavourite())
+                .append("favourite", u.getFavourite())
                 .append("reviews", u.getReviewList())
                 .append("readingList", u.getReadingLists());
         try {
@@ -370,14 +370,14 @@ public class MongoDBDriver {
     public boolean removeLikeReview(Review review, String unliker){
         //update users collection
         Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
-        Bson push = Updates.push("reviews.$.likers", unliker);
+        Bson pull = Updates.pull("reviews.$.likers", unliker);
         Bson dec = inc("reviews.$.numLikes", -1);
-        UpdateResult res = userCollection.updateOne(match, combine(dec, push));
+        UpdateResult res = userCollection.updateOne(match, combine(dec, pull));
         if(res.getModifiedCount() < 1)
             return false;
         //update books collection
         match = and(eq("isbn", review.getReviewedBookIsbn()), eq("reviews.reviewId", review.getReviewId()));
-        res = bookCollection.updateOne(match, combine(dec, push));
+        res = bookCollection.updateOne(match, combine(dec, pull));
         if(res.getModifiedCount() < 1)
             return false;
         return true;
@@ -390,8 +390,11 @@ public class MongoDBDriver {
         Bson match = eq("username", user);
         Bson push = Updates.push("readingList", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
-        if(res.getModifiedCount() < 1)
+        if(res.getModifiedCount() < 1){
+            System.out.println("FALSE");
             return false;
+        }
+        System.out.println("TRUE");
         return true;
     }
 
@@ -410,7 +413,7 @@ public class MongoDBDriver {
                 .append("title", book.getTitle())
                 .append("author", book.getAuthor())
                 .append("imageURL", book.getImageURL());
-        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson match = and(eq("username", user), eq("readingList.name", rlName));
         Bson push = Updates.push("readingList.$.books", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
@@ -420,7 +423,7 @@ public class MongoDBDriver {
 
     public boolean removeBookFromReadingList(String user, String rlName, Book book){
         Document toRemove = new Document("isbn", book.getIsbn());
-        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson match = and(eq("username", user), eq("readingList.name", rlName));
         Bson pull = pull("readingList.$.books", toRemove);
         UpdateResult res = userCollection.updateOne(match, pull);
         if(res.getModifiedCount() < 1)
@@ -429,7 +432,7 @@ public class MongoDBDriver {
     }
 
     public boolean addLikeReadingList(String user, String rlName){
-        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson match = and(eq("username", user), eq("readingList.name", rlName));
         Bson inc = inc("readingList.$.numLikes", 1);
         UpdateResult res = userCollection.updateOne(match, inc);
         if(res.getModifiedCount() < 1)
@@ -438,7 +441,7 @@ public class MongoDBDriver {
     }
 
     public boolean removeLikeReadingList(String user, String rlName){
-        Bson match = and(eq("username", username), eq("readingList.name", rlName));
+        Bson match = and(eq("username", user), eq("readingList.name", rlName));
         Bson dec = inc("readingList.$.numLikes", -1);
         UpdateResult res = userCollection.updateOne(match, dec);
         if(res.getModifiedCount() < 1)

@@ -55,6 +55,7 @@ public class BookPageController {
         //setta vari listener
         rlButton.setOnMouseClicked(mouseEvent -> addToReadingList(mouseEvent));
         rlBox.setOnHidden(event -> checkRlButton(event));
+        reviewButton.setOnMouseClicked(mouseEvent -> newReview(mouseEvent));
     }
 
     public void setBook(Book b){
@@ -71,6 +72,8 @@ public class BookPageController {
 
         List<Book> favorites = mongoDBDriver.getFavoriteOfUser(session.getLoggedUser().getUsername());
         boolean isFavorite = false; //true if the showed book is already in the favorite books of the logged user
+        if(favorites == null)
+            System.out.println("NULL");
         for(Book favBook: favorites){
             if(favBook.getIsbn().equals(book.getIsbn())){
                 isFavorite = true;
@@ -95,15 +98,8 @@ public class BookPageController {
                 break;
             }
         }
-        if(reviewed){
-            reviewLabel.setText("You already reviewed this book");
-            reviewText.setDisable(true);
-            reviewButton.setDisable(true);
-            ratingBox.setDisable(true);
-        }
-        else{
-            ratingBox.getItems().addAll("1", "2", "3", "4", "5");
-        }
+        setReviewZone(reviewed);
+
         //aggiungi le review
         Utils.addReviewsBig(reviewsVbox, book.getReviews(), true);
     }
@@ -154,6 +150,9 @@ public class BookPageController {
     private void addFavorite(MouseEvent mouseEvent) {
         if(!Utils.addBookToFavorite(session.getLoggedUser().getUsername(), book))
             return;
+        int nFav = Integer.parseInt(numFavorite.getText().split(" ")[0]);
+        nFav++;
+        numFavorite.setText(nFav + " users add it to their favorite books");
         session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
         setFavoriteButton(true);
     }
@@ -161,6 +160,9 @@ public class BookPageController {
     private void remFavorite(MouseEvent mouseEvent) {
         if(!Utils.removeBookFromFavorite(session.getLoggedUser().getUsername(), book))
             return;
+        int nFav = Integer.parseInt(numFavorite.getText().split(" ")[0]);
+        nFav--;
+        numFavorite.setText(nFav + " users add it to their favorite books");
         session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
         setFavoriteButton(false);
     }
@@ -191,5 +193,40 @@ public class BookPageController {
             return;
         session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
         setRlButton(false);
+    }
+
+    private void newReview(MouseEvent mouseEvent){
+        String rat = (String) ratingBox.getValue();
+        if(rat == null){
+            Utils.showErrorAlert("You have to give a rating to complete the review!");
+            return;
+        }
+        int rating = Integer.parseInt(rat);
+        String text = reviewText.getText();
+        if(text.equals("")){
+            Utils.showErrorAlert("You have to write a text to complete the review!");
+            return;
+        }
+        if(mongoDBDriver.addNewReview(new Review(session.getLoggedUser().getUsername(), book.getIsbn(), text, rating, book.getTitle()))) {
+            setReviewZone(true);
+            reviewsVbox.getChildren().clear();
+            book = mongoDBDriver.getBookInformation(book.getIsbn());
+            Utils.addReviewsBig(reviewsVbox, book.getReviews(), true);
+        }
+        else
+            Utils.showErrorAlert("Error during the creation of the new review");
+    }
+
+    private void setReviewZone(boolean reviewed){
+        if(reviewed){
+            reviewLabel.setText("You already reviewed this book");
+            reviewText.setDisable(true);
+            reviewButton.setDisable(true);
+            ratingBox.setDisable(true);
+        }
+        else{
+            if(ratingBox.getItems().size() == 0)
+                ratingBox.getItems().addAll("1", "2", "3", "4", "5");
+        }
     }
 }
