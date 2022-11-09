@@ -147,6 +147,32 @@ public class Neo4jDriver{
     }
 
     /**
+     * Create a follow relation
+     * @param usernameA  user that will follow userB
+     * @param usernameB  user that will be followed
+     * @return true if operation is successfully executed, false otherwise
+     */
+    public boolean follow(String usernameA, String usernameB )
+    {
+        try ( Session session = driver.session())
+        {
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run(  "MATCH (u1: User) WHERE u1.username = $follower\n" +
+                            "MATCH (u2: User) WHERE u2.username = $followed\n" +
+                            "CREATE (u1) - [:FOLLOWS] -> (u2)",
+                        parameters( "follower", usernameA,"followed",usernameB));
+                return null;
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.err.println("Error in adding Follow relationship in Neo4J");
+            return false;
+        }
+    }
+
+    /**
      * Create a is interested to relation
      * @param username The user
      * @param category Category in which the user is interested to
@@ -372,7 +398,7 @@ public class Neo4jDriver{
         try(Session session = driver.session())
         {
             numLikes = session.readTransaction((TransactionWork<Integer>) tx -> {
-                Result r = tx.run("MATCH (:ReadingList {id: $readinglistname })<-[r:LIKES]-()\n" +
+                Result r = tx.run("MATCH (:ReadingList {name: $readinglistname })<-[r:LIKES]-()\n" +
                                      "RETURN COUNT (r) AS numLikes",
                         parameters("readinglistname",readinglistname));
                 Record rec = r.next();
@@ -399,7 +425,7 @@ public class Neo4jDriver{
         try(Session session = driver.session())
         {
             check = session.readTransaction((TransactionWork<Boolean>) tx -> {
-                Result r = tx.run("MATCH (a:User{id: $usernameA })-[r:FOLLOWS]->(b:User{id: $usernameB })\n" +
+                Result r = tx.run("MATCH (a:User{username: $usernameA })-[r:FOLLOWS]->(b:User{username: $usernameB })\n" +
                                      "RETURN COUNT (*)",
                         parameters("usernameA",usernameA, "usernameB", usernameB));
                 Record rec = r.next();
@@ -430,7 +456,7 @@ public class Neo4jDriver{
         try(Session session = driver.session())
         {
             check = session.readTransaction((TransactionWork<Boolean>) tx -> {
-                Result r = tx.run("MATCH (a:User{id: $user })-[r:LIKES]->(b:ReadingList{id: $readinglistname })\n" +
+                Result r = tx.run("MATCH (a:User{username: $user })-[r:LIKES]->(b:ReadingList{name: $readinglistname })\n" +
                                      "RETURN COUNT (*)",
                         parameters("username",username, "readinglistname", readinglistname));
                 Record rec = r.next();
@@ -460,7 +486,7 @@ public class Neo4jDriver{
         try(Session session = driver.session())
         {
             check = session.readTransaction((TransactionWork<Boolean>) tx -> {
-                Result r = tx.run("MATCH (a:User{id: $username })-[r:FAVORITES]->(b:Book{isbn: $isbn })\n" +
+                Result r = tx.run("MATCH (a:User{username: $username })-[r:FAVORITES]->(b:Book{isbn: $isbn })\n" +
                                      "RETURN COUNT (*)",
                         parameters("username",username, "isbn", isbn));
                 Record rec = r.next();
@@ -492,7 +518,7 @@ public class Neo4jDriver{
         {
             session.writeTransaction((TransactionWork<Boolean>) tx -> {
                 tx.run("MATCH (u:User {username: $oldusername })\n" +
-                          "SET u.username = $newusername ,  u.id = $newusername",
+                          "SET u.username = $newusername ,  u.username = $newusername",
                         parameters("oldusername", oldusername, "newusername", newusername));
                 return null;
             });

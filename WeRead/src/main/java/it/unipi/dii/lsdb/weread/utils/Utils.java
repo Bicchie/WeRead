@@ -1,8 +1,6 @@
 package it.unipi.dii.lsdb.weread.utils;
 
-import it.unipi.dii.lsdb.weread.controller.BookFavoriteSnapshotController;
-import it.unipi.dii.lsdb.weread.controller.BookPreviewController;
-import it.unipi.dii.lsdb.weread.controller.ReviewController;
+import it.unipi.dii.lsdb.weread.controller.*;
 import it.unipi.dii.lsdb.weread.model.Book;
 import it.unipi.dii.lsdb.weread.model.ReadingList;
 import it.unipi.dii.lsdb.weread.model.Review;
@@ -94,6 +92,14 @@ public class Utils {
         alert.setTitle("Error");
         ImageView imageView = new ImageView(new Image("/img/error.png"));
         alert.setGraphic(imageView);
+        alert.show();
+    }
+
+    public static void showInformationAlert(String text){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(text);
+        alert.setHeaderText("EVERYTHING IS ALL RIGHT");
+        alert.setTitle("Operation Done");
         alert.show();
     }
 
@@ -300,7 +306,7 @@ public class Utils {
 
     /**
      * This function create a pane that contains a book snapshot
-     * @param book  recipe to display in the snapshot
+     * @param book to display in the snapshot
      * @return
      */
     private static Pane createFavoriteBookSnapshot(Book book)
@@ -324,10 +330,73 @@ public class Utils {
      * @param bookList   books to show
      */
     public static void showFavoriteBooks(HBox hBox, List<Book> bookList) {
-        System.out.println(hBox.getChildren());
         for (Book book : bookList) {
             Pane bookPane = createFavoriteBookSnapshot(book);
             hBox.getChildren().add(bookPane);
+        }
+    }
+
+    /**
+     * This function create a pane that contains a review snapshot
+     * @param review to display in the snapshot
+     * @return
+     */
+    private static Pane createReviewSnapshot(Review review)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/reviewSnapshot.fxml"));
+            pane = (Pane) loader.load();
+            ReviewSnapshotController reviewSnapshotController = (ReviewSnapshotController) loader.getController();
+            reviewSnapshotController.setReview(review);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return pane;
+    }
+
+    /**
+     * Function that adds the review snapshot for each review made by the user
+     * @param hBox      hBox in which I have to show the snapshots
+     * @param reviews   to show
+     */
+    public static void showReviews(HBox hBox, List<Review> reviews) {
+        for (Review review : reviews) {
+            Pane reviewPane = createReviewSnapshot(review);
+            hBox.getChildren().add(reviewPane);
+        }
+    }
+
+    /**
+     * This function create a pane that contains a review snapshot
+     * @param rl  reading list to display in the snapshot
+     * @return
+     */
+    private static Pane createReadingListSnapshot(ReadingList rl)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/readingListSnapshot.fxml"));
+            pane = (Pane) loader.load();
+            ReadingListSnapshotController readingListSnapshotController = (ReadingListSnapshotController) loader.getController();
+            readingListSnapshotController.setReadinglist(rl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return pane;
+    }
+
+    /**
+     * Function that adds the review snapshot for each review made by the user
+     * @param hBox      hBox in which I have to show the snapshots
+     * @param rl   reading lists to show
+     */
+    public static void showReadingLists(HBox hBox, List<ReadingList> rl) {
+        for (ReadingList r : rl) {
+            Pane rlPane = createReadingListSnapshot(r);
+            hBox.getChildren().add(rlPane);
         }
     }
 }

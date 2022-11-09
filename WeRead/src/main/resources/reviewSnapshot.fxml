@@ -24,7 +24,11 @@
             <Image url="@img/reviewIcon.png" />
          </image>
       </ImageView>
-      <Label fx:id="ratingReview" layoutX="59.0" layoutY="18.0" prefHeight="17.0" prefWidth="0.0" text="5" />
+      <Label fx:id="ratingReview" layoutX="57.0" layoutY="3.0" prefHeight="17.0" prefWidth="0.0" text="5" >
+            <font>
+                <Font name="Dubai Bold" size="26.0"/>
+            </font>
+      </Label>
     </children>
     <opaqueInsets>
         <Insets />

@@ -85,6 +85,7 @@ public class WelcomePageController {
                 System.out.println("Login Done:" + loginUsernameTextField.getText());
 
                 UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
+                userPageController.setUser(newSession.getLoggedUser());
             }
             else
             {
