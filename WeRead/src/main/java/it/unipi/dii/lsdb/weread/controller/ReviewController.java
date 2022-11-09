@@ -59,7 +59,7 @@ public class ReviewController {
     private void showUserPage(MouseEvent mouseEvent){
         User u = mongoDBDriver.getUserInfo(review.getReviewer());
         UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
-        //userPageController.setUser(u);
+        userPageController.setUser(u);
     }
 
     /*private void showBookPage(MouseEvent mouseEvent){

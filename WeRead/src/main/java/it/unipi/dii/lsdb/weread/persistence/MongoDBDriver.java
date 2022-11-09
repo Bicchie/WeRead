@@ -207,7 +207,14 @@ public class MongoDBDriver {
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
         Gson gson = new Gson();
         Document res = (Document) bookCollection.find(eq("isbn", isbn)).first();
-        Book b = gson.fromJson(gson.toJson(res), Book.class);
+        Book b = null;
+        try {
+            b = gson.fromJson(gson.toJson(res), Book.class);
+        }catch(Exception e){
+            System.out.println("AAAAA");
+            e.printStackTrace();
+            System.out.println("AAAAA");
+        }
         return b;
     }
 
@@ -303,12 +310,12 @@ public class MongoDBDriver {
         return userCollection.countDocuments(regex("username", pattern));
     }
 
-    public List<User> serachUsersByString(String user, int skip, int limit){
+    public List<User> searchUsersByString(String user, int skip, int limit){
         List<User> userList = null;
 
         Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + user + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) userCollection.find(regex("username", pattern)).projection(fields(excludeId(), include("username", "email", "numReviews"))).skip(skip).limit(limit).into(new ArrayList());
+        List<Document> res = (List<Document>) userCollection.find(regex("username", pattern)).projection(fields(excludeId(), include("username", "email", "name", "surname"))).skip(skip).limit(limit).into(new ArrayList());
         Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
         userList = gson.fromJson(gson.toJson(res), userListType);
         return  userList;

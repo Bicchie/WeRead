@@ -26,7 +26,7 @@ public class SearchPageController {
     private final String[] searchByOptions = {"title", "author", "category", "publisher"};
     private long currentPage; //index of the current page of the results list
     private long numPages; //total number of pages requested for showing the last search results
-    private final int numResultsToShow = 3; //maximum number of results to be showed in each page
+    private int numResultsToShow = 3; //maximum number of results to be showed in each page
     private String searchBy; //by what the last search has been requested
     private String searchKey; //string inserted by the user to make the research
 
@@ -94,30 +94,35 @@ public class SearchPageController {
                 Utils.showErrorAlert("Please select something to search by");
                 return;
             }
+            numResultsToShow = 3; //number of books to show for each page
             switch(searchBy){
                 case "title":
                     System.out.println();
                     numPages = (long) Math.ceil(mongoDBDriver.countBookByTitle(searchKey)/ numResultsToShow);
-                    resultList = mongoDBDriver.searchBookByTitle(searchKey, (int) (currentPage-1), numResultsToShow);
+                    resultList = mongoDBDriver.searchBookByTitle(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                     break;
                 case "author":
                     numPages = (long) Math.ceil(mongoDBDriver.countBookByAuthor(searchKey)/ numResultsToShow);
-                    resultList = mongoDBDriver.searchBookByAuthor(searchKey, (int) (currentPage-1), numResultsToShow);
+                    resultList = mongoDBDriver.searchBookByAuthor(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                     break;
                 case "category":
                     numPages = (long) Math.ceil(mongoDBDriver.countBookByCategory(searchKey)/ numResultsToShow);
-                    resultList = mongoDBDriver.searchBookByCategory(searchKey, (int) (currentPage-1), numResultsToShow);
+                    resultList = mongoDBDriver.searchBookByCategory(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                     break;
                 case "publisher":
                     numPages = (long) Math.ceil(mongoDBDriver.countBookByPublisher(searchKey)/ numResultsToShow);
-                    resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1), numResultsToShow);
+                    resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                     break;
             }
             setPageBox();
-            Utils.addRBookPreviewsBig(resultBox, resultList);
+            Utils.addBookPreviewsBig(resultBox, resultList);
         }
         if(usersRadio.isSelected()){
-
+            numResultsToShow = 12;
+            numPages = (long) Math.ceil(mongoDBDriver.countUsersByString(searchKey)/ numResultsToShow);
+            resultList = mongoDBDriver.searchUsersByString(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
+            setPageBox();
+            Utils.addUserPreviews(resultBox, resultList);
         }
     }
 
@@ -156,19 +161,19 @@ public class SearchPageController {
     private void searchNewResults(){
         switch(searchBy){
             case "title":
-                resultList = mongoDBDriver.searchBookByTitle(searchKey, (int) (currentPage-1), numResultsToShow);
+                resultList = mongoDBDriver.searchBookByTitle(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                 break;
             case "author":
-                resultList = mongoDBDriver.searchBookByAuthor(searchKey, (int) (currentPage-1), numResultsToShow);
+                resultList = mongoDBDriver.searchBookByAuthor(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                 break;
             case "category":
-                resultList = mongoDBDriver.searchBookByCategory(searchKey, (int) (currentPage-1), numResultsToShow);
+                resultList = mongoDBDriver.searchBookByCategory(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                 break;
             case "publisher":
-                resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1), numResultsToShow);
+                resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                 break;
         }
-        Utils.addRBookPreviewsBig(resultBox, resultList);
+        Utils.addBookPreviewsBig(resultBox, resultList);
     }
 
     private void makeBoxEmpty(){

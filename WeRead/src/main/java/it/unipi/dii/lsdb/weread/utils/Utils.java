@@ -4,6 +4,7 @@ import it.unipi.dii.lsdb.weread.controller.*;
 import it.unipi.dii.lsdb.weread.model.Book;
 import it.unipi.dii.lsdb.weread.model.ReadingList;
 import it.unipi.dii.lsdb.weread.model.Review;
+import it.unipi.dii.lsdb.weread.model.User;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 
@@ -32,6 +33,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 
 public class Utils {
@@ -187,7 +189,7 @@ public class Utils {
      * @param vBox      VBox in which I have to show the snapshots
      * @param bookList   Recipes to show
      */
-    public static void addRBookPreviewsBig(VBox vBox, List<Book> bookList) {
+    public static void addBookPreviewsBig(VBox vBox, List<Book> bookList) {
         for (Book rev : bookList) {
             /*HBox row = new HBox();
             row.setStyle("-fx-padding: 10px");
@@ -419,4 +421,50 @@ public class Utils {
             vBox.getChildren().add(revPane);
         }
     }
+
+    //nuovo
+
+    public static Pane createUserPreview(User u){
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/userPreview.fxml"));
+            pane = (Pane) loader.load();
+            UserPreviewController userPreviewController =
+                    (UserPreviewController) loader.getController();
+            userPreviewController.setUser(u);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pane;
+    }
+
+    public static void addUserPreviews(VBox vBox, List<User> userList) {
+        Iterator<User> iterator = userList.iterator();
+        while (iterator.hasNext()) {
+            HBox row = new HBox();
+            //row.setStyle("-fx-padding: 10px");
+            row.setSpacing(15);
+            User user1 = iterator.next();
+            Pane userPane1 = createUserPreview(user1);
+            row.getChildren().add(userPane1);
+            if (iterator.hasNext()) {
+                User user2 = iterator.next();
+                Pane userPane2 = createUserPreview(user2);
+                row.getChildren().add(userPane2);
+                if(iterator.hasNext()){
+                    User user3 = iterator.next();
+                    Pane userPane3 = createUserPreview(user3);
+                    row.getChildren().add(userPane3);
+                    if(iterator.hasNext()){
+                        User user4 = iterator.next();
+                        Pane userPane4 = createUserPreview(user4);
+                        row.getChildren().add(userPane4);
+                    }
+                }
+            }
+            vBox.getChildren().add(row);;
+        }
+    }
+
+    //nuovo
 }
