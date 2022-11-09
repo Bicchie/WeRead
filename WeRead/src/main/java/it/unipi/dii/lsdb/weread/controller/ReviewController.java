@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.text.SimpleDateFormat;
@@ -24,14 +25,17 @@ public class ReviewController {
     @FXML private Text text;
     @FXML private Label dateTime;
     @FXML private Button likeButton;
+    @FXML private VBox likersBox;
 
     private MongoDBDriver mongoDBDriver;
     private Review review;
     private Session session;
+    private boolean likersShowed;
 
     public void initialize(){
         mongoDBDriver = MongoDBDriver.getInstance();
         session = Session.getInstance();
+        likersShowed = false; //true if the review box is showing the likers list
         //setta i vari click ai label
         reviewAuthor.setOnMouseClicked(mouseEvent -> showUserPage(mouseEvent));
         numLikes.setOnMouseClicked(mouseEvent -> showLikers(mouseEvent));
@@ -65,16 +69,14 @@ public class ReviewController {
     }*/
 
     private void showLikers(MouseEvent mouseEvent){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        StringBuilder toPrint = new StringBuilder();
-        List<String> likers = review.getLikers();
-        for(String user: likers){
-            toPrint.append(user);
-            toPrint.append("\n");
+        if(!likersShowed) {
+            Utils.addLikers(likersBox, review.getLikers());
+            likersShowed = true;
         }
-        alert.setContentText(toPrint.toString());
-        alert.setTitle("Review's Likers");
-        alert.show();
+        else{
+            likersBox.getChildren().clear();
+            likersShowed = false;
+        }
     }
 
     private void setLikeButton(boolean liked){

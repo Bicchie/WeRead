@@ -27,7 +27,7 @@ public class BookPreviewController {
     }
 
     private void showBookPage(MouseEvent mouseEvent) {
-        if(book.getNumPages() < 0){
+        if(book.getNumPages() <= 0){
             book = mongoDBDriver.getBookInformation(book.getIsbn());
         }
         BookPageController bookPageController = (BookPageController) Utils.changeScene("/bookPage.fxml", mouseEvent);

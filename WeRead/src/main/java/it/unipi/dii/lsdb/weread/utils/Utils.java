@@ -399,4 +399,26 @@ public class Utils {
             hBox.getChildren().add(rlPane);
         }
     }
+
+    private static Pane createLiker(String liker)
+    {
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/likerPane.fxml"));
+            pane = (Pane) loader.load();
+            LikerController likerController =
+                    (LikerController) loader.getController();
+            likerController.setLiker(liker);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pane;
+    }
+
+    public static void addLikers(VBox vBox, List<String> likers) {
+        for (String l : likers) {
+            Pane revPane = createLiker(l);
+            vBox.getChildren().add(revPane);
+        }
+    }
 }

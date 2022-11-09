@@ -230,52 +230,88 @@ public class MongoDBDriver {
         return reviews;
     }
 
-    public List<Book> searchBookByTitle(String titleExpr){
+    public long countBookByTitle(String title){
+        Pattern pattern  = Pattern.compile("^.*" + title + ".*$", Pattern.CASE_INSENSITIVE);
+        return bookCollection.countDocuments(regex("title", pattern));
+    }
+
+    public List<Book> searchBookByTitle(String titleExpr, int skip, int limit){
         List<Book> bookList = null;
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
         Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
     }
 
-    public List<Book> searchBookByCategory(String category){
+    public long countBookByCategory(String category){
+        Pattern pattern  = Pattern.compile("^.*" + category + ".*$", Pattern.CASE_INSENSITIVE);
+        return bookCollection.countDocuments(regex("category", pattern));
+    }
+
+    public List<Book> searchBookByCategory(String category, int skip, int limit){
         List<Book> bookList = null;
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
         Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + category + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("category", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("category", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
     }
 
-    public List<Book> searchBookByAuthor(String author){
+    public long countBookByAuthor(String author){
+        Pattern pattern  = Pattern.compile("^.*" + author + ".*$", Pattern.CASE_INSENSITIVE);
+        return bookCollection.countDocuments(regex("author", pattern));
+    }
+
+    public List<Book> searchBookByAuthor(String author, int skip, int limit){
         List<Book> bookList = null;
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
         Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + author + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("author", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("author", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
     }
 
-    public List<Book> searchBookByPublisher(String publisher){
+    public long countBookByPublisher(String publisher){
+        Pattern pattern  = Pattern.compile("^.*" + publisher + ".*$", Pattern.CASE_INSENSITIVE);
+        return bookCollection.countDocuments(regex("publisher", pattern));
+    }
+
+    public List<Book> searchBookByPublisher(String publisher, int skip, int limit){
         List<Book> bookList = null;
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
         Gson gson = new Gson();
         Pattern pattern  = Pattern.compile("^.*" + publisher + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(regex("publisher", publisher)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).into(new ArrayList());
+        List<Document> res = (List<Document>) bookCollection.find(regex("publisher", publisher)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
+    }
+
+    public long countUsersByString(String user){
+        Pattern pattern  = Pattern.compile("^.*" + user + ".*$", Pattern.CASE_INSENSITIVE);
+        return userCollection.countDocuments(regex("username", pattern));
+    }
+
+    public List<User> serachUsersByString(String user, int skip, int limit){
+        List<User> userList = null;
+
+        Gson gson = new Gson();
+        Pattern pattern  = Pattern.compile("^.*" + user + ".*$", Pattern.CASE_INSENSITIVE);
+        List<Document> res = (List<Document>) userCollection.find(regex("username", pattern)).projection(fields(excludeId(), include("username", "email", "numReviews"))).skip(skip).limit(limit).into(new ArrayList());
+        Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
+        userList = gson.fromJson(gson.toJson(res), userListType);
+        return  userList;
     }
 
     public boolean addBookToFavorite(String username, Book book){

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.SearchPageController">
+    <BorderPane prefHeight="31.0" prefWidth="600.0" style="-fx-background-color: D24B2E;">
+        <left>
+            <ImageView fitHeight="63.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER_LEFT">
+                <image>
+                    <Image url="@img/icon.png" />
+                </image>
+            </ImageView>
+        </left>
+        <center>
+            <HBox alignment="CENTER_RIGHT" prefHeight="70.0" prefWidth="541.0" BorderPane.alignment="CENTER" />
+        </center>
+        <right>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <children>
+                    <ImageView fitHeight="36.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@img/bookSearchIcon.png" />
+                        </image>
+                    </ImageView>
+                    <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@img/homeIcon.png" />
+                        </image>
+                    </ImageView>
+                    <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@img/userIcon.png" />
+                        </image>
+                    </ImageView>
+                </children>
+            </HBox>
+        </right>
+    </BorderPane>
+   <VBox alignment="TOP_CENTER" prefHeight="689.0" prefWidth="700.0">
+      <children>
+         <BorderPane>
+            <left>
+               <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+                  <BorderPane.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </BorderPane.margin>
+               </VBox>
+            </left>
+            <right>
+               <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+                  <children>
+                     <Label fx:id="searchByLabel" opacity="0.0" text="Search by">
+                        <font>
+                           <Font name="System Bold" size="14.0" />
+                        </font>
+                        <VBox.margin>
+                           <Insets bottom="5.0" top="3.0" />
+                        </VBox.margin>
+                     </Label>
+                     <ComboBox fx:id="searchByBox" opacity="0.0" prefHeight="25.0" prefWidth="126.0" />
+                  </children>
+                  <BorderPane.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </BorderPane.margin>
+               </VBox>
+            </right>
+            <center>
+               <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                  <children>
+                     <TextField fx:id="searchText" prefHeight="25.0" prefWidth="363.0" />
+                     <HBox alignment="CENTER" spacing="50.0">
+                        <children>
+                           <RadioButton fx:id="usersRadio" mnemonicParsing="false" text="Users">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </RadioButton>
+                           <RadioButton fx:id="booksRadio" mnemonicParsing="false" text="Books">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </RadioButton>
+                           <Button fx:id="searchButton" alignment="CENTER" mnemonicParsing="false" style="-fx-background-color: D24B2E;" text="SEARCH">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Button>
+                        </children>
+                        <VBox.margin>
+                           <Insets top="5.0" />
+                        </VBox.margin>
+                     </HBox>
+                  </children>
+               </VBox>
+            </center>
+            <bottom>
+               <Line endX="590.0" startX="-100.0" stroke="#d24b2e" BorderPane.alignment="CENTER">
+                  <BorderPane.margin>
+                     <Insets top="5.0" />
+                  </BorderPane.margin>
+               </Line>
+            </bottom>
+         </BorderPane>
+         <ScrollPane prefWidth="700.0">
+            <content>
+               <VBox fx:id="resultBox" alignment="CENTER" prefWidth="680.0" spacing="10.0" />
+            </content>
+         </ScrollPane>
+         <HBox alignment="CENTER" layoutX="10.0" layoutY="119.0" prefWidth="200.0" spacing="100.0">
+            <children>
+               <Button fx:id="previousButton" mnemonicParsing="false" text="Previous" />
+               <Label fx:id="pageLabel" text="page/numPages" />
+               <Button fx:id="nextButton" mnemonicParsing="false" text="Next" />
+            </children>
+            <VBox.margin>
+               <Insets bottom="3.0" top="3.0" />
+            </VBox.margin>
+         </HBox>
+      </children>
+   </VBox>
+
+</VBox>

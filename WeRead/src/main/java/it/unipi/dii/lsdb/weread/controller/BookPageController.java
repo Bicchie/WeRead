@@ -7,6 +7,8 @@ import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import javax.rmi.CORBA.Util;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -54,7 +57,8 @@ public class BookPageController {
         session = Session.getInstance();
         //setta vari listener
         rlButton.setOnMouseClicked(mouseEvent -> addToReadingList(mouseEvent));
-        rlBox.setOnHidden(event -> checkRlButton(event));
+        //rlBox.setOnHidden(event -> checkRlButton(event));
+        rlBox.valueProperty().addListener((observable, oldValue, newValue) -> checkRlButton());
         reviewButton.setOnMouseClicked(mouseEvent -> newReview(mouseEvent));
     }
 
@@ -104,7 +108,7 @@ public class BookPageController {
         Utils.addReviewsBig(reviewsVbox, book.getReviews(), true);
     }
 
-    private void checkRlButton(Event event) {
+    private void checkRlButton() {
         String selectedReadingList = (String) rlBox.getValue();
         boolean contained = false; //true if the selected reading list already contains the showed book
         for(ReadingList rl: session.getLoggedUser().getReadingLists()){
@@ -180,6 +184,7 @@ public class BookPageController {
         if(!exists){
             if(!Utils.createNewReadingList(session.getLoggedUser().getUsername(), new ReadingList(selectedReadingList)))
                 return; //if the reading list could not be created, the book will obviousbly be not added to it
+            rlBox.getItems().add(selectedReadingList);
         }
         if(!Utils.addBookToReadingList(session.getLoggedUser().getUsername(), selectedReadingList, book))
             return;
