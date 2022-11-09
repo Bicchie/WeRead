@@ -6,7 +6,6 @@ import it.unipi.dii.lsdb.weread.model.ReadingList;
 import it.unipi.dii.lsdb.weread.model.Review;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
-import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
 
 import com.thoughtworks.xstream.XStream;
 import javafx.event.Event;
@@ -33,7 +32,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 
 public class Utils {

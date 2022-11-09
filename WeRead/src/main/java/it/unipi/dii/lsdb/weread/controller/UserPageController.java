@@ -1,27 +1,18 @@
 package it.unipi.dii.lsdb.weread.controller;
 
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.model.User;
 import it.unipi.dii.lsdb.weread.model.Session;
-import it.unipi.dii.lsdb.weread.model.Book;
-import it.unipi.dii.lsdb.weread.model.ReadingList;
-import it.unipi.dii.lsdb.weread.model.Review;
 import it.unipi.dii.lsdb.weread.utils.Utils;
-import it.unipi.dii.lsdb.weread.model.Book;
 
 
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**

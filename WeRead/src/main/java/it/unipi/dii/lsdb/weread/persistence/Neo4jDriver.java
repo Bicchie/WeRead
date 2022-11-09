@@ -788,9 +788,10 @@ public class Neo4jDriver{
     /**
      * This function is used to suggest Users followed by users that the logged user follow, who is interested to the same categories
      * @param loggedUsername    Username of the logged User
+     * @param howMany           How many to return
      * @return                  List of the suggested Users
      */
-    public List<String> suggestUsersByCommonInterest (String loggedUsername)
+    public List<String> suggestUsersByCommonInterest (String loggedUsername, int howMany)
     {
         List<String> suggestedUsers = new ArrayList<>();
         try(Session session = driver.session()) {
@@ -798,8 +799,9 @@ public class Neo4jDriver{
                 Result result = tx.run("MATCH (me:User {username: $username}) -[f: FOLLOWS]-> (u2) -[f2: FOLLOWS]-> (target: User)\n" +
                                           "WHERE NOT EXISTS ((me) -[: FOLLOWS]-> (target)) \n" +
                                           "AND (me) -[: IS_INTERESTED_TO]-> (: Category) <-[: IS_INTERESTED_TO]- (target)\n" +
-                                          "RETURN DISTINCT target.username AS username",
-                        parameters( "username", loggedUsername));
+                                          "RETURN DISTINCT target.username AS username\n"+
+                                          "LIMIT $limit",
+                        parameters( "username", loggedUsername, "limit", howMany));
 
                 while(result.hasNext()){
                     Record r = result.next();
