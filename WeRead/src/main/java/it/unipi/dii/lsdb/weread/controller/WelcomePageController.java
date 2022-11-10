@@ -1,7 +1,9 @@
 package it.unipi.dii.lsdb.weread.controller;
 
+import it.unipi.dii.lsdb.weread.model.ReadingList;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;

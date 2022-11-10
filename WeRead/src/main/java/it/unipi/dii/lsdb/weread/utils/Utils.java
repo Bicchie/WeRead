@@ -390,13 +390,13 @@ public class Utils {
 
     /**
      * Function that adds the review snapshot for each review made by the user
-     * @param hBox      hBox in which I have to show the snapshots
+     * @param box      hBox in which I have to show the snapshots
      * @param rl   reading lists to show
      */
-    public static void showReadingLists(HBox hBox, List<ReadingList> rl) {
+    public static void showReadingLists(Pane box, List<ReadingList> rl) {
         for (ReadingList r : rl) {
             Pane rlPane = createReadingListSnapshot(r);
-            hBox.getChildren().add(rlPane);
+            box.getChildren().add(rlPane);
         }
     }
 

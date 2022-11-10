@@ -791,22 +791,25 @@ public class Neo4jDriver{
      * @param howMany           How many to return
      * @return                  List of the suggested Users
      */
-    public List<String> suggestUsersByCommonInterest (String loggedUsername, int howMany)
+    public List<User> suggestUsersByCommonInterest (String loggedUsername, int howMany)
     {
-        List<String> suggestedUsers = new ArrayList<>();
+        List<User> suggestedUsers = new ArrayList<>();
         try(Session session = driver.session()) {
             session.readTransaction(tx -> {
                 Result result = tx.run("MATCH (me:User {username: $username}) -[f: FOLLOWS]-> (u2) -[f2: FOLLOWS]-> (target: User)\n" +
                                           "WHERE NOT EXISTS ((me) -[: FOLLOWS]-> (target)) \n" +
                                           "AND (me) -[: IS_INTERESTED_TO]-> (: Category) <-[: IS_INTERESTED_TO]- (target)\n" +
-                                          "RETURN DISTINCT target.username AS username\n"+
+                                          "RETURN DISTINCT target.username AS username, target.name AS name, target.surname AS surname\n"+
                                           "LIMIT $limit",
                         parameters( "username", loggedUsername, "limit", howMany));
 
                 while(result.hasNext()){
                     Record r = result.next();
                     String user = r.get("username").asString();
-                    suggestedUsers.add(user);
+                    String name = r.get("name").asString();
+                    String surname = r.get("surname").asString();
+                    User u = new User(user,name,surname);
+                    suggestedUsers.add(u);
                 }
                 return null;
             });
@@ -984,9 +987,9 @@ public class Neo4jDriver{
      * @param howMany
      * @return                  List of the suggested Reading List
      */
-    public List<String> suggestReadingLists(String loggedUsername, int howMany)
+    public List<ReadingList> suggestReadingLists(String loggedUsername, int howMany)
     {
-        List<String> suggestedReadingList= new ArrayList<>();
+        List<ReadingList> suggestedReadingList= new ArrayList<>();
         try(Session session = driver.session()) {
             session.readTransaction(tx -> {
                 Result result = tx.run("MATCH (u:User{username: $username})-[f:FOLLOWS]->(ua:User)-[l:LIKES]->(rl:ReadingList)\n" +
@@ -1003,7 +1006,8 @@ public class Neo4jDriver{
                 while(result.hasNext()){
                     Record r = result.next();
                     String name = r.get("name").asString();
-                    suggestedReadingList.add(name);
+                    ReadingList rl = new ReadingList(name);
+                    suggestedReadingList.add(rl);
                 }
                 return null;
             });

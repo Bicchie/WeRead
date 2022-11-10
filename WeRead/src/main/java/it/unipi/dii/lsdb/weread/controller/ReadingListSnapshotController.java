@@ -14,9 +14,17 @@ public class ReadingListSnapshotController {
 
     public void setReadinglist(ReadingList rl){
         this.readinglist = rl;
-        titleRL.setText(rl.getName());
-        String numLikes = Integer.toString(rl.getNumLikes());
-        numberLikesRL.setText("Number of Likes: " + numLikes);
+        String name = rl.getName();
+        if(name.contains(":")){
+            String[] parts = name.split(":");
+            titleRL.setText(parts[1] + " by \n " + parts[0]);
+        } else {
+            titleRL.setText(rl.getName());
+        }
+        if(rl.getNumLikes() != 0){
+            String numLikes = Integer.toString(rl.getNumLikes());
+            numberLikesRL.setText("Number of Likes: " + numLikes);
+        }
     }
 
 }

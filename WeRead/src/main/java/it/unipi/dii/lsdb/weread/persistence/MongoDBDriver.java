@@ -9,19 +9,12 @@ import it.unipi.dii.lsdb.weread.model.*;
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
-import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
-import it.unipi.dii.lsdb.weread.utils.Utils;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -536,7 +529,11 @@ public class MongoDBDriver {
         Bson match = match(eq("isbn", isbn));
         Bson project = project(fields(excludeId(), computed("averageRating", computed("$avg", "$reviews.rating"))));
         Document res = (Document) bookCollection.aggregate(Arrays.asList(match, project)).first();
-        return res.getDouble("averageRating");
+        if(res.toString().equals("Document{{averageRating=null}}")){
+            return -1;
+        } else {
+            return res.getDouble("averageRating");
+        }
     }
 
     //returns a list of list of objects. Each list is composed as [title | author | imageURL | averageRating]

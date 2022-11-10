@@ -41,6 +41,13 @@ public class User {
         readingList = new ArrayList<>();
     }
 
+    //constructor for new user
+    public User(String username, String name, String surname){
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+    }
+
     public String getUsername() {
         return username;
     }

@@ -12,6 +12,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.image.ImageView;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -26,7 +29,7 @@ public class HomePageController {
 
     private List suggestList; //list of the suggestion results
     private int currentPage; //index of the current page of the results list
-    private final int numResultsToShow = 3; //maximum number of results to be showed in each page
+    private final int numResultsToShow = 4; //maximum number of results to be showed in each page
     private int numPages; // num pages of the current suggestion list
     private final String[] suggestionOptions = {"Friends", "Books", "Reading Lists"};
     private Neo4jDriver neo4jDriver;
@@ -46,7 +49,6 @@ public class HomePageController {
         previousButton.setVisible(false);
         nextButton.setVisible(false);
 
-        // DA METTERE NON QUI MA QUANDO E' SELEZIONATO LA COMBOBOX
         previousButton.setOnMouseClicked(mouseEvent -> previousPage(mouseEvent));
         nextButton.setOnMouseClicked(mouseEvent -> nextPage(mouseEvent));
     }
@@ -67,17 +69,12 @@ public class HomePageController {
         switch(whatSuggest){
             case "Friends":
                 suggestList = neo4jDriver.suggestUsersByCommonInterest(session.getLoggedUser().getUsername(),4);
-                //Utils.addRBookPreviewsBig(suggestionsVbox, resultList);
-                System.out.println("AVREI MOSTRATO FRIENDS");
                 break;
             case "Books":
                 suggestList = neo4jDriver.suggestBooks(session.getLoggedUser().getUsername(),4);
-                //Utils.addRBookPreviewsBig(suggestionsVbox, suggestList);
                 break;
             case "Reading Lists":
                 suggestList = neo4jDriver.suggestReadingLists(session.getLoggedUser().getUsername(),4);
-                //Utils.addRBookPreviewsBig(suggestionsVbox, resultList);
-                System.out.println("AVREI MOSTRATO READING LISTS");
                 break;
         }
         int numElement = suggestList.size();
@@ -90,8 +87,30 @@ public class HomePageController {
     private void showSuggestions(){
         int start = (currentPage - 1)*numResultsToShow;
         int end = start + numResultsToShow;
-        System.out.println(suggestList.subList(start,end));
-        Utils.addBookPreviewsBig(suggestionsVbox, suggestList.subList(start,end));
+        System.out.println("start: " + start);
+        System.out.println("end: " + end);
+        List sublist;
+        try {
+            sublist = suggestList.subList(start, end);
+        } catch (IndexOutOfBoundsException e){
+            int numElement = suggestList.size();
+            System.out.println(numElement%numResultsToShow);
+            end = start + (numElement%numResultsToShow);
+            sublist = suggestList.subList(start, end);
+        }
+        switch(whatSuggest){
+            case "Friends":
+                Utils.addUserPreviews(suggestionsVbox,sublist);
+                break;
+            case "Books":
+                Utils.addBookPreviewsBig(suggestionsVbox,sublist);
+                break;
+            case "Reading Lists":
+                Utils.showReadingLists(suggestionsVbox,sublist);
+                break;
+        }
+
+
         setPageBox();
     }
 

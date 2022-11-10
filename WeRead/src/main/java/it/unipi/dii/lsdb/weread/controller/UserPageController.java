@@ -49,7 +49,7 @@ public class UserPageController {
 
         bookSearchIcon.setOnMouseClicked(mouseEvent -> clickOnSearchIcon(mouseEvent));
         homeIcon.setOnMouseClicked(mouseEvent -> clickOnHomeIcon(mouseEvent));
-        //userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
+        userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
 
     }
 
@@ -94,17 +94,25 @@ public class UserPageController {
         }
     }
 
+    private void clickOnUserIcon(MouseEvent mouseEvent){
+        UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
+        userPageController.setUser(session.getLoggedUser());
+    }
+
     private void clickOnSearchIcon(MouseEvent mouseEvent){
-        //Utils.changeScene("/homepage.fxml", mouseEvent);
+        Utils.changeScene("/searchPage.fxml", mouseEvent);
     }
 
     private void clickOnHomeIcon(MouseEvent mouseEvent){
-        //Utils.changeScene("/homepage.fxml", mouseEvent);
+        Utils.changeScene("/homePage.fxml", mouseEvent);
     }
 
     private void clickOnUnfollow(MouseEvent mouseEvent){
         if(neo4jDriver.unfollow(session.getLoggedUser().getUsername(),user.getUsername())){
             Utils.showInformationAlert("User Unfollowed!");
+            int numFollower = Integer.parseInt(follower.getText());
+            numFollower = numFollower - 1;
+            follower.setText(Integer.toString(numFollower));
             unfollowIcon.setVisible(false);
             followIcon.setVisible(true);
             unfollowIcon.removeEventHandler(MouseEvent.MOUSE_CLICKED,this::clickOnUnfollow);
@@ -117,6 +125,9 @@ public class UserPageController {
     private void clickOnFollow(MouseEvent mouseEvent){
         if(neo4jDriver.follow(session.getLoggedUser().getUsername(),user.getUsername())){
             Utils.showInformationAlert("User Followed!");
+            int numFollower = Integer.parseInt(follower.getText());
+            numFollower = numFollower + 1;
+            follower.setText(Integer.toString(numFollower));
             followIcon.setVisible(false);
             unfollowIcon.setVisible(true);
             followIcon.removeEventHandler(MouseEvent.MOUSE_CLICKED,this::clickOnFollow);

@@ -28,7 +28,7 @@ public class UserPreviewController {
 
     private void showUserPage(MouseEvent mouseEvent){
         UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
-        userPageController.setUser(user);
+        userPageController.setUser(mongoDBDriver.getUserInfo(user.getUsername()));
     }
 
     public void setUser(User u){
