@@ -347,7 +347,8 @@ public class MongoDBDriver {
     }
 
     //returns true only if both the queries in both the collections are ok
-    public boolean addNewReview(Review review){
+    //if onlyUsers is true, the review is added only from the users collection
+    public boolean addNewReview(Review review, boolean onlyUsers){
         Document toAdd = new Document("reviewId", review.getReviewId())
                 .append("title", review.getBookTitle())
                 .append("text", review.getText())
@@ -361,21 +362,24 @@ public class MongoDBDriver {
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1)
             return false;
-
+        if(onlyUsers)
+            return true;
         //update books collection
-        toAdd.remove("title");
+        //toAdd.remove("title");
         match = eq("isbn", review.getReviewedBookIsbn());
         push = Updates.push("reviews", toAdd);
         res = bookCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1) {
-            //rimuovi review da utente??
+            //must delete the previous changes in the users collection for consistency
+            removeReview(review, true);
             return false;
         }
         return true;
     }
 
     //return true only if the review has been succesfully removed by both the collections
-    public boolean removeReview(Review review){
+    //if onlyUsers is true, the review is removed only from the users collection
+    public boolean removeReview(Review review, boolean onlyUsers){
         Document toRemove = new Document("reviewId", review.getReviewId());
         //update users collection
         Bson match = eq("username", review.getReviewer());
@@ -383,17 +387,22 @@ public class MongoDBDriver {
         UpdateResult res = userCollection.updateOne(match, pull);
         if(res.getModifiedCount() < 1)
             return false;
-
+        if(onlyUsers)
+            return true;
         //update books collection
         match = eq("isbn", review.getReviewedBookIsbn());
         res = bookCollection.updateOne(match, pull);
-        if(res.getModifiedCount() < 1)
+        if(res.getModifiedCount() < 1) {
+            //must delete the previous changes in the users collection for consistency
+            addNewReview(review, true);
             return false;
+        }
         return true;
     }
 
     //return true only if both the queries are successful
-    public boolean addLikeReview(Review review, String liker){
+    //if onlyUsers is true, the like is added only in the users collection
+    public boolean addLikeReview(Review review, String liker, boolean onlyUsers){
         //update users collection
         Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
         Bson push = Updates.push("reviews.$.likers", liker);
@@ -401,16 +410,22 @@ public class MongoDBDriver {
         UpdateResult res = userCollection.updateOne(match, combine(inc, push));
         if(res.getModifiedCount() < 1)
             return false;
+        if(onlyUsers)
+            return true;
         //update books collection
         match = and(eq("isbn", review.getReviewedBookIsbn()), eq("reviews.reviewId", review.getReviewId()));
         res = bookCollection.updateOne(match, combine(inc, push));
-        if(res.getModifiedCount() < 1)
+        if(res.getModifiedCount() < 1) {
+            //must delete the previous changes in the users collection for consistency
+            removeLikeReview(review, liker, true);
             return false;
+        }
         return true;
     }
 
     //return true only if both the queries are successful
-    public boolean removeLikeReview(Review review, String unliker){
+    //if onlyUsers is true, the like is removed only in the users collection
+    public boolean removeLikeReview(Review review, String unliker, boolean onlyUsers){
         //update users collection
         Bson match = and(eq("username", review.getReviewer()), eq("reviews.reviewId", review.getReviewId()));
         Bson pull = Updates.pull("reviews.$.likers", unliker);
@@ -418,11 +433,16 @@ public class MongoDBDriver {
         UpdateResult res = userCollection.updateOne(match, combine(dec, pull));
         if(res.getModifiedCount() < 1)
             return false;
+        if(onlyUsers)
+            return true;
         //update books collection
         match = and(eq("isbn", review.getReviewedBookIsbn()), eq("reviews.reviewId", review.getReviewId()));
         res = bookCollection.updateOne(match, combine(dec, pull));
-        if(res.getModifiedCount() < 1)
+        if(res.getModifiedCount() < 1) {
+            //must delete the previous changes in the users collection for consistency
+            addLikeReview(review, unliker, true);
             return false;
+        }
         return true;
     }
 

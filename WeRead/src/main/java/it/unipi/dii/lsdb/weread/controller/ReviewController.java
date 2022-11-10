@@ -91,7 +91,7 @@ public class ReviewController {
     }
 
     private void likeReview(MouseEvent mouseEvent){
-        if(mongoDBDriver.addLikeReview(review, session.getLoggedUser().getUsername())) {
+        if(mongoDBDriver.addLikeReview(review, session.getLoggedUser().getUsername(), false)) {
             setLikeButton(true);
             int likes = Integer.parseInt(numLikes.getText());
             numLikes.setText(String.valueOf(likes+1));
@@ -102,7 +102,7 @@ public class ReviewController {
     }
 
     private void unlikeReview(MouseEvent mouseEvent){
-        if(mongoDBDriver.removeLikeReview(review, session.getLoggedUser().getUsername())) {
+        if(mongoDBDriver.removeLikeReview(review, session.getLoggedUser().getUsername(), false)) {
             setLikeButton(false);
             int likes = Integer.parseInt(numLikes.getText());
             numLikes.setText(String.valueOf(likes-1));

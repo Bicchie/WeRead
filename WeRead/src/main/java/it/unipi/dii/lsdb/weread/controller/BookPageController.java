@@ -212,7 +212,7 @@ public class BookPageController {
             Utils.showErrorAlert("You have to write a text to complete the review!");
             return;
         }
-        if(mongoDBDriver.addNewReview(new Review(session.getLoggedUser().getUsername(), book.getIsbn(), text, rating, book.getTitle()))) {
+        if(mongoDBDriver.addNewReview(new Review(session.getLoggedUser().getUsername(), book.getIsbn(), text, rating, book.getTitle()), false)) {
             setReviewZone(true);
             reviewsVbox.getChildren().clear();
             book = mongoDBDriver.getBookInformation(book.getIsbn());
@@ -231,7 +231,7 @@ public class BookPageController {
         }
         else{
             if(ratingBox.getItems().size() == 0)
-                ratingBox.getItems().addAll("1", "2", "3", "4", "5");
+                ratingBox.getItems().addAll("0", "1", "2", "3", "4", "5");
         }
     }
 }
