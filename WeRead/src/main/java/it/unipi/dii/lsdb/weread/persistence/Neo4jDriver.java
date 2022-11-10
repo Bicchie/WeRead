@@ -934,22 +934,22 @@ public class Neo4jDriver{
             session.readTransaction(tx -> {
                 Result result = tx.run("MATCH (u:User{username: $username})-[i:IS_INTERESTED_TO]->(c:Category)<-[bt:BELONGS_TO]-(bf:Book)\n" +
                                           "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
-                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn, c.name AS name\n" +
                                           "LIMIT $limit\n" +
                                           "UNION\n" +
-                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(ua:User)-[l:LIKES]->(r:ReadingList)-[o:HAS]->(bf:Book)\n" +
+                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(ua:User)-[l:LIKES]->(r:ReadingList)-[o:HAS]->(bf:Book)-[bt:BELONGS_TO]->(c:Category)\n" +
                                           "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
-                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn, c.name AS name\n" +
                                           "LIMIT $limit\n" +
                                           "UNION\n" +
-                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(uf:User)-[fav:FAVORITES]->(bf:Book)\n" +
+                                          "MATCH (u:User{username: $username})-[f:FOLLOWS]->(uf:User)-[fav:FAVORITES]->(bf:Book)-[bt:BELONGS_TO]->(c:Category)\n" +
                                           "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
-                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn, c.name AS name\n" +
                                           "LIMIT $limit\n" +
                                           "UNION\n" +
-                                          "MATCH (u:User{username: $username})-[f:FAVORITES]->(b:Book)<-[h:HAS]-(r:ReadingList)-[h2:HAS]->(bf:Book)\n" +
+                                          "MATCH (u:User{username: $username})-[f:FAVORITES]->(b:Book)<-[h:HAS]-(r:ReadingList)-[h2:HAS]->(bf:Book)-[bt:BELONGS_TO]->(c:Category)\n" +
                                           "WHERE NOT EXISTS((u)-[:FAVORITES]->(bf))\n" +
-                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn\n" +
+                                          "RETURN bf.title AS title, bf.author as author, bf.imageURL as imageURL, bf.isbn AS isbn, c.name AS name\n" +
                                           "LIMIT $limit",
                         parameters( "username", loggedUsername, "limit", howMany));
 
@@ -959,7 +959,8 @@ public class Neo4jDriver{
                     String author = r.get("author").asString();
                     String imageURL = r.get("imageURL").asString();
                     String isbn = r.get("isbn").asString();
-                    Book book = new Book(isbn,title,author,imageURL);
+                    String category = r.get("name").asString();
+                    Book book = new Book(isbn,title,author,category,imageURL);
                     suggestedBooks.add(book);
                 }
                 return null;

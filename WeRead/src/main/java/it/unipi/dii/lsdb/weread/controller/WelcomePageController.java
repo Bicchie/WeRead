@@ -1,7 +1,6 @@
 package it.unipi.dii.lsdb.weread.controller;
 
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -12,10 +11,6 @@ import it.unipi.dii.lsdb.weread.utils.Utils;
 
 
 import javafx.scene.input.MouseEvent;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Controller for the Welcome page
@@ -84,6 +79,8 @@ public class WelcomePageController {
                 newSession.setLoggedUser(user);
                 System.out.println("Login Done:" + loginUsernameTextField.getText());
 
+                //HomePageController homePageController = (HomePageController) Utils.changeScene("/homePage.fxml",actionEvent);
+                // this is the right way to call the userPage ---> YOU MUST CALL ALSO SET USER!!!
                 UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
                 userPageController.setUser(newSession.getLoggedUser());
             }

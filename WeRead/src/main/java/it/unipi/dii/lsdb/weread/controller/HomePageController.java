@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
+import javafx.scene.image.ImageView;
 import java.util.List;
 
 
@@ -20,6 +21,8 @@ public class HomePageController {
     @FXML private Button nextButton;
     @FXML private Button previousButton;
     @FXML private Label pagesLabel;
+    @FXML private ImageView bookSearchIcon;
+    @FXML private ImageView userIcon;
 
     private List suggestList; //list of the suggestion results
     private int currentPage; //index of the current page of the results list
@@ -34,6 +37,9 @@ public class HomePageController {
         neo4jDriver = Neo4jDriver.getInstance();
         session = Session.getInstance();
 
+        bookSearchIcon.setOnMouseClicked(mouseEvent -> clickOnSearchIcon(mouseEvent));
+        userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
+
         whatSuggestComboBox.getItems().addAll(suggestionOptions);
         whatSuggestComboBox.setOnAction(event -> changeSuggestion());
         pagesLabel.setVisible(false);
@@ -45,22 +51,31 @@ public class HomePageController {
         nextButton.setOnMouseClicked(mouseEvent -> nextPage(mouseEvent));
     }
 
+    private void clickOnSearchIcon(MouseEvent mouseEvent){
+        Utils.changeScene("/searchPage.fxml", mouseEvent);
+    }
+
+    private void clickOnUserIcon(MouseEvent mouseEvent){
+        UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
+        userPageController.setUser(session.getLoggedUser());
+    }
+
     private void changeSuggestion(){
         currentPage = 1;
         makeBoxEmpty();
         whatSuggest = whatSuggestComboBox.getValue().toString();
         switch(whatSuggest){
             case "Friends":
-                suggestList = neo4jDriver.suggestUsersByCommonInterest(session.getLoggedUser().getUsername(),12);
+                suggestList = neo4jDriver.suggestUsersByCommonInterest(session.getLoggedUser().getUsername(),4);
                 //Utils.addRBookPreviewsBig(suggestionsVbox, resultList);
                 System.out.println("AVREI MOSTRATO FRIENDS");
                 break;
             case "Books":
-                suggestList = neo4jDriver.suggestBooks(session.getLoggedUser().getUsername(),12);
+                suggestList = neo4jDriver.suggestBooks(session.getLoggedUser().getUsername(),4);
                 //Utils.addRBookPreviewsBig(suggestionsVbox, suggestList);
                 break;
             case "Reading Lists":
-                suggestList = neo4jDriver.suggestReadingLists(session.getLoggedUser().getUsername(),12);
+                suggestList = neo4jDriver.suggestReadingLists(session.getLoggedUser().getUsername(),4);
                 //Utils.addRBookPreviewsBig(suggestionsVbox, resultList);
                 System.out.println("AVREI MOSTRATO READING LISTS");
                 break;
@@ -73,10 +88,10 @@ public class HomePageController {
 
     }
     private void showSuggestions(){
-        int start = currentPage - 1;
+        int start = (currentPage - 1)*numResultsToShow;
         int end = start + numResultsToShow;
         System.out.println(suggestList.subList(start,end));
-        Utils.addRBookPreviewsBig(suggestionsVbox, suggestList.subList(start,end));
+        Utils.addBookPreviewsBig(suggestionsVbox, suggestList.subList(start,end));
         setPageBox();
     }
 
