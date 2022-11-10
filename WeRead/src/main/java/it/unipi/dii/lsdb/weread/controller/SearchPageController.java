@@ -1,9 +1,11 @@
 package it.unipi.dii.lsdb.weread.controller;
 
+import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
@@ -20,6 +22,9 @@ public class SearchPageController {
     @FXML private Button nextButton;
     @FXML private Button previousButton;
     @FXML private Label pageLabel;
+    @FXML private ImageView homeIcon;
+    @FXML private ImageView bookSearchIcon;
+    @FXML private ImageView userIcon;
 
     private MongoDBDriver mongoDBDriver;
     private List resultList; //list of the search results
@@ -49,6 +54,23 @@ public class SearchPageController {
 
         previousButton.setOnMouseClicked(mouseEvent -> previousPage(mouseEvent));
         nextButton.setOnMouseClicked(mouseEvent -> nextPage(mouseEvent));
+
+        bookSearchIcon.setOnMouseClicked(mouseEvent -> clickOnSearchIcon(mouseEvent));
+        userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
+        homeIcon.setOnMouseClicked(mouseEvent -> clickOnHomeIcon(mouseEvent));
+    }
+
+    private void clickOnHomeIcon(MouseEvent mouseEvent){
+        Utils.changeScene("/homePage.fxml", mouseEvent);
+    }
+
+    private void clickOnSearchIcon(MouseEvent mouseEvent){
+        Utils.changeScene("/searchPage.fxml", mouseEvent);
+    }
+
+    private void clickOnUserIcon(MouseEvent mouseEvent){
+        UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
+        userPageController.setUser(Session.getInstance().getLoggedUser());
     }
 
     private void usersRadioListener(boolean selected){

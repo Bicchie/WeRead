@@ -207,14 +207,7 @@ public class MongoDBDriver {
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
         Gson gson = new Gson();
         Document res = (Document) bookCollection.find(eq("isbn", isbn)).first();
-        Book b = null;
-        try {
-            b = gson.fromJson(gson.toJson(res), Book.class);
-        }catch(Exception e){
-            System.out.println("AAAAA");
-            e.printStackTrace();
-            System.out.println("AAAAA");
-        }
+        Book b = gson.fromJson(gson.toJson(res), Book.class);
         return b;
     }
 
@@ -527,6 +520,23 @@ public class MongoDBDriver {
         if(res.getDeletedCount() < 1)
             return false;
         return true;
+    }
+
+    public boolean deleteBook(String isbn){
+        Bson match = eq("isbn", isbn);
+        DeleteResult res = bookCollection.deleteOne(match);
+        if(res.getDeletedCount() < 1)
+            return false;
+        return true;
+    }
+
+    //returns the avg rating of the reviews given to the book
+    public double getAvgRating(String isbn){
+        Gson gson = new Gson();
+        Bson match = match(eq("isbn", isbn));
+        Bson project = project(fields(excludeId(), computed("averageRating", computed("$avg", "$reviews.rating"))));
+        Document res = (Document) bookCollection.aggregate(Arrays.asList(match, project)).first();
+        return res.getDouble("averageRating");
     }
 
     //returns a list of list of objects. Each list is composed as [title | author | imageURL | averageRating]

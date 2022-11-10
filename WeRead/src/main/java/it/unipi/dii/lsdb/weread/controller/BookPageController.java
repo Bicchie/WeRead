@@ -45,6 +45,10 @@ public class BookPageController {
     @FXML private ImageView bookImage;
     @FXML private Label bookAuthor;
     @FXML private Label bookCategory;
+    @FXML private Label rateLabel;
+    @FXML private ImageView homeIcon;
+    @FXML private ImageView bookSearchIcon;
+    @FXML private ImageView userIcon;
 
     private Book book; //book showed in this page
     private MongoDBDriver mongoDBDriver;
@@ -60,6 +64,23 @@ public class BookPageController {
         //rlBox.setOnHidden(event -> checkRlButton(event));
         rlBox.valueProperty().addListener((observable, oldValue, newValue) -> checkRlButton());
         reviewButton.setOnMouseClicked(mouseEvent -> newReview(mouseEvent));
+
+        bookSearchIcon.setOnMouseClicked(mouseEvent -> clickOnSearchIcon(mouseEvent));
+        userIcon.setOnMouseClicked(mouseEvent -> clickOnUserIcon(mouseEvent));
+        homeIcon.setOnMouseClicked(mouseEvent -> clickOnHomeIcon(mouseEvent));
+    }
+
+    private void clickOnHomeIcon(MouseEvent mouseEvent){
+        Utils.changeScene("/homePage.fxml", mouseEvent);
+    }
+
+    private void clickOnSearchIcon(MouseEvent mouseEvent){
+        Utils.changeScene("/searchPage.fxml", mouseEvent);
+    }
+
+    private void clickOnUserIcon(MouseEvent mouseEvent){
+        UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
+        userPageController.setUser(session.getLoggedUser());
     }
 
     public void setBook(Book b){
@@ -71,8 +92,12 @@ public class BookPageController {
         bookLanguage.setText(book.getLanguage());
         bookPublisher.setText(book.getPublisher());
         numPages.setText(book.getNumPages() + " pages");
-        publicationYear.setText(String.valueOf(book.getPublicationYear()));
+        if(book.getPublicationYear() != 0)
+            publicationYear.setText(String.valueOf(book.getPublicationYear()));
+        else
+            publicationYear.setText("Not available");
         numFavorite.setText(neo4jDriver.numberFavoritesOfBook(book.getIsbn()) + " users add it to their favorite books");
+        rateLabel.setText(String.valueOf(mongoDBDriver.getAvgRating(book.getIsbn())));
 
         List<Book> favorites = mongoDBDriver.getFavoriteOfUser(session.getLoggedUser().getUsername());
         boolean isFavorite = false; //true if the showed book is already in the favorite books of the logged user

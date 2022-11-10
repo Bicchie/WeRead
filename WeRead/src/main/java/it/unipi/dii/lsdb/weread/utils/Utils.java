@@ -467,4 +467,20 @@ public class Utils {
     }
 
     //nuovo
+
+    public static boolean addNewBook(Book b){
+        MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
+        Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
+        if(mongoDBDriver.addBook(b)){
+            if(!neo4jDriver.newBook(b)){
+                mongoDBDriver.deleteBook(b.getIsbn());
+                return false;
+            }
+        }
+        else{
+            showErrorAlert("Error in adding a book in mongodb");
+            return false;
+        }
+        return true;
+    }
 }

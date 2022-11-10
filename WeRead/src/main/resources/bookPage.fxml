@@ -32,17 +32,17 @@
          <right>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fitHeight="36.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="bookSearchIcon" fitHeight="36.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@img/bookSearchIcon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="homeIcon" fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@img/homeIcon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="userIcon" fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@img/userIcon.png" />
                      </image>
@@ -161,6 +161,24 @@
                         </Pane>
                         <Pane prefHeight="147.0" prefWidth="297.0">
                            <children>
+                              <Pane layoutX="217.0" prefHeight="79.0" prefWidth="82.0" style="-fx-border-color: D24B2E; -fx-border-radius: 100;">
+                                 <children>
+                                    <VBox alignment="CENTER" prefHeight="82.0" prefWidth="84.0">
+                                       <children>
+                                          <Label fx:id="rateLabel" alignment="CENTER" prefHeight="31.0" prefWidth="86.0" text="4.0" textFill="#d24b2e">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                          <ImageView fitHeight="33.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@img/star_icon.png" />
+                                             </image>
+                                          </ImageView>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </Pane>
                               <VBox prefHeight="145.0" prefWidth="296.0">
                                  <children>
                                     <HBox prefHeight="41.0" prefWidth="249.0">
@@ -328,7 +346,7 @@
                      </VBox.margin></Pane>
                   <Pane prefWidth="200.0">
                      <children>
-                        <VBox fx:id="reviewsVbox" alignment="CENTER" prefHeight="331.0" prefWidth="683.0" spacing="20.0">
+                        <VBox fx:id="reviewsVbox" alignment="TOP_CENTER" prefHeight="331.0" prefWidth="683.0" spacing="20.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="681.0" text="Users said about this book...">
                                  <font>
