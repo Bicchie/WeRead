@@ -36,10 +36,13 @@ public class BookFavoriteSnapshotController {
     }
 
 
-    public void setFavoriteBook(Book b, int avgRating){
+    public void setFavoriteBook(Book b, double avgRating){
         this.book = b;
         if(avgRating != 0){
-            avgRatingLabel.setText(Integer.toString(avgRating));
+            if(avgRating == (int) avgRating)
+                avgRatingLabel.setText(String.valueOf((int) avgRating));
+            else
+                avgRatingLabel.setText(String.format("%.2f",avgRating));
         } else {
             avgRatingLabel.setVisible(false);
         }
