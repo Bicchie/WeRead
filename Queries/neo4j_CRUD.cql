@@ -18,6 +18,7 @@
 // Retrieve the number of user’s followers
 // Retrieve the number of favorites received by a book
 // Retrieve the number of likes received by reading list
+// Retrieve the category of a book by isbn
 // Check if a user follows another user
 // Check if a user likes a reading list
 // Check if a user likes a book
@@ -133,6 +134,10 @@ RETURN COUNT (r) AS numFavorites
 
 MATCH (:ReadingList {id: $readinglistname })<-[r:LIKES]-()
 RETURN COUNT (r) AS numLikes 
+
+// Retrieve the category of a book by isbn
+MATCH (c:Category)<-[bt:BELONGS_TO]-(b:Book{isbn: $isbn})
+RETURN c.name AS category
 
 // Check if a user follows another user
 
