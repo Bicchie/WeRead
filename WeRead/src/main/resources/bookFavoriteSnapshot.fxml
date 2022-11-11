@@ -20,11 +20,16 @@
             <Font name="System Italic" size="10.0" />
          </font>
       </Label>
-      <ImageView fitHeight="39.0" fitWidth="36.0" layoutX="117.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="39.0" fitWidth="36.0" layoutX="101.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@img/favoriteIcon.png" />
          </image>
       </ImageView>
+      <Label fx:id="avgRatingLabel" layoutX="146.0" layoutY="24.0" text="4.53">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
     </children>
     <opaqueInsets>
         <Insets />

@@ -59,7 +59,7 @@
       </AnchorPane>
       <ScrollPane>
          <content>
-            <VBox fx:id="suggestionsVbox" prefHeight="371.0" prefWidth="694.0" alignment="CENTER" spacing="5"/>
+            <VBox fx:id="suggestionsVbox" prefHeight="371.0" prefWidth="684.0" alignment="CENTER" spacing="5"/>
          </content>
       </ScrollPane>
       <AnchorPane prefHeight="25.0" prefWidth="694.0">

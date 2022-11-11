@@ -7,9 +7,6 @@ import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -21,8 +18,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import javax.rmi.CORBA.Util;
-import java.util.Comparator;
+import java.text.DecimalFormat;
 import java.util.List;
 
 
@@ -97,7 +93,13 @@ public class BookPageController {
         else
             publicationYear.setText("Not available");
         numFavorite.setText(neo4jDriver.numberFavoritesOfBook(book.getIsbn()) + " users add it to their favorite books");
-        rateLabel.setText(String.valueOf(mongoDBDriver.getAvgRating(book.getIsbn())));
+        double avg = mongoDBDriver.getAvgRating(book.getIsbn());
+        if(avg == -1){
+            rateLabel.setVisible(false);
+        } else {
+            rateLabel.setText(String.format("%.2f",avg));
+        }
+
 
         List<Book> favorites = mongoDBDriver.getFavoriteOfUser(session.getLoggedUser().getUsername());
         boolean isFavorite = false; //true if the showed book is already in the favorite books of the logged user

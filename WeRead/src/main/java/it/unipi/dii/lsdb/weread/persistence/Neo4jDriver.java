@@ -456,7 +456,7 @@ public class Neo4jDriver{
         try(Session session = driver.session())
         {
             check = session.readTransaction((TransactionWork<Boolean>) tx -> {
-                Result r = tx.run("MATCH (a:User{username: $user })-[r:LIKES]->(b:ReadingList{name: $readinglistname })\n" +
+                Result r = tx.run("MATCH (a:User{username: $username })-[r:LIKES]->(b:ReadingList{name: $readinglistname })\n" +
                                      "RETURN COUNT (*)",
                         parameters("username",username, "readinglistname", readinglistname));
                 Record rec = r.next();

@@ -316,7 +316,7 @@ public class Utils {
             FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/bookFavoriteSnapshot.fxml"));
             pane = (Pane) loader.load();
             BookFavoriteSnapshotController bookFavoriteSnapshotController = (BookFavoriteSnapshotController) loader.getController();
-            bookFavoriteSnapshotController.setFavoriteBook(book);
+            bookFavoriteSnapshotController.setFavoriteBook(book,0);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -21,7 +21,7 @@ public class LikerController {
     private void showUserPage(MouseEvent mouseEvent){
         User u = mongoDBDriver.getUserInfo(username);
         UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
-        //userPageController.setUser(u);
+        userPageController.setUser(u);
     }
 
     public void setLiker(String l){

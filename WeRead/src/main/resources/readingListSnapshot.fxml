@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="bookPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="110.0" prefWidth="170.0" style="-fx-background-position: center; -fx-border-style: solid; -fx-border-radius: 50; -fx-border-width: 3px; -fx-border-color: D24B2E;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.ReadingListSnapshotController">
+<AnchorPane fx:id="readingListPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="110.0" prefWidth="170.0" style="-fx-background-position: center; -fx-border-style: solid; -fx-border-radius: 50; -fx-border-width: 3px; -fx-border-color: D24B2E;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsdb.weread.controller.ReadingListSnapshotController">
     <children>
       <Label fx:id="titleRL" layoutX="18.0" layoutY="47.0" prefHeight="54.0" prefWidth="133.0" text="TITLEEEEEEEEEEEEEEEEEEEEEE" textAlignment="CENTER" wrapText="true">
          <font>
