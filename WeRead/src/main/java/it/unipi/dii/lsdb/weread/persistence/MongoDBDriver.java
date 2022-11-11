@@ -523,6 +523,20 @@ public class MongoDBDriver {
         return true;
     }
 
+    public ReadingList getReadingList(String username, String rlName){
+        Gson gson = new Gson();
+        Bson match1 = match(eq("username", username));
+        Bson unwind = unwind("$readingList");
+        Bson match2 = match(eq("readingList.name", rlName));
+        Bson project = project(fields(excludeId(),
+                computed("name", "$readingList.name"),
+                computed("numLikes", "$readingList.numLikes"),
+                computed("books", "$readingList.books")));
+        Document res = (Document) userCollection.aggregate(Arrays.asList(match1, unwind, match2, project)).first();
+        ReadingList rl = gson.fromJson(res.toJson(), ReadingList.class);
+        return rl;
+    }
+
     //returns the avg rating of the reviews given to the book
     public double getAvgRating(String isbn){
         Gson gson = new Gson();
@@ -541,7 +555,7 @@ public class MongoDBDriver {
         Gson gson = new Gson();
         //controllo che ci siano review
         Bson match = match(ne("reviews", new ArrayList<>()));
-        Bson project = project(fields(excludeId(), include("title", "author", "imageURL"), computed("averageRating", computed("$avg", "$reviews.rating"))));
+        Bson project = project(fields(excludeId(), include("isbn", "title", "author", "imageURL"), computed("averageRating", computed("$avg", "$reviews.rating"))));
         Bson sort = sort(descending("averageRating"));
         Bson limit = limit(booksNumber);
         MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, project, sort, limit)).iterator();
@@ -551,6 +565,7 @@ public class MongoDBDriver {
             Document doc = iterator.next();
             //List<Object> res = new ArrayList<>();
             Map<String, Object> res = new HashMap<>();
+            res.put("isbn", doc.getString("isbn"));
             res.put("title", doc.getString("title"));
             res.put("author", doc.getString("author"));
             res.put("imageURL", doc.getString("imageURL"));
@@ -592,7 +607,7 @@ public class MongoDBDriver {
             Document doc = iterator.next();
             Map<String, Object> res = new HashMap<>();
             res.put("username", doc.getString("username"));
-            res.put("numReviews", doc.getDouble("numReviews"));
+            res.put("numReviews", doc.getInteger("numReviews"));
             ranking.add(res);
         }
         return ranking;
