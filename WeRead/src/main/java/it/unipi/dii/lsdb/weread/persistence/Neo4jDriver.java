@@ -692,9 +692,9 @@ public class Neo4jDriver{
      * @param howMany       How many to obtain
      * @return              List of the most followed Users
      */
-    public List<String> mostFollowedUsers (int howMany)
+    public List<Map<String, Object>> mostFollowedUsers (int howMany)
     {
-        List<String> usernames = new ArrayList<>();
+        List<Map<String, Object>> userList = new ArrayList<>();
         try(Session session = driver.session()) {
             session.readTransaction(tx -> {
                 Result result = tx.run("MATCH (u:User)<-[r:FOLLOWS]-(:User)\n" +
@@ -706,7 +706,11 @@ public class Neo4jDriver{
                 while(result.hasNext()){
                     Record r = result.next();
                     String user = r.get("Username").asString();
-                    usernames.add(user);
+                    int numFollower = r.get("numFollower").asInt();
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("username", user);
+                    m.put("numFollower", numFollower);
+                    userList.add(m);
                 }
                 return null;
             });
@@ -715,7 +719,7 @@ public class Neo4jDriver{
         {
             e.printStackTrace();
         }
-        return usernames;
+        return userList;
     }
 
     /**
@@ -723,9 +727,9 @@ public class Neo4jDriver{
      * @param howMany       How many to obtain
      * @return              List of the most Liked Reading Lists
      */
-    public List<String> mostLikedReadingLists (int howMany)
+    public List<ReadingList> mostLikedReadingLists (int howMany)
     {
-        List<String> readingLists = new ArrayList<>();
+        List<ReadingList> readingLists = new ArrayList<>();
         try(Session session = driver.session()) {
             session.readTransaction(tx -> {
                 Result result = tx.run("MATCH (:User)-[l:LIKES]->(rl:ReadingList)\n" +
@@ -737,7 +741,8 @@ public class Neo4jDriver{
                 while(result.hasNext()){
                     Record r = result.next();
                     String readingList = r.get("ReadingList").asString();
-                    readingLists.add(readingList);
+                    int numLikes = r.get("numLikes").asInt();
+                    readingLists.add(new ReadingList(readingList, numLikes, new ArrayList<>()));
                 }
                 return null;
             });

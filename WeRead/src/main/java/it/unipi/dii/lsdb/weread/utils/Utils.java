@@ -11,6 +11,7 @@ import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import com.thoughtworks.xstream.XStream;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
     /**
@@ -400,6 +402,17 @@ public class Utils {
         }
     }
 
+    public static void showBestReadingLists(VBox vBox, List<ReadingList> rl){
+        HBox hBox = new HBox();
+        hBox.setSpacing(30);
+        hBox.setAlignment(Pos.TOP_CENTER);
+        for (ReadingList r : rl) {
+            Pane rlPane = createReadingListSnapshot(r);
+            hBox.getChildren().add(rlPane);
+        }
+        vBox.getChildren().add(hBox);
+    }
+
     private static Pane createLiker(String liker)
     {
         Pane pane = null;
@@ -447,6 +460,7 @@ public class Utils {
             User user1 = iterator.next();
             Pane userPane1 = createUserPreview(user1);
             row.getChildren().add(userPane1);
+            row.setAlignment(Pos.TOP_CENTER);
             if (iterator.hasNext()) {
                 User user2 = iterator.next();
                 Pane userPane2 = createUserPreview(user2);
@@ -483,4 +497,57 @@ public class Utils {
         }
         return true;
     }
+
+    public static Pane createBestBookSnapshot(Book book, double avgRating){
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/bookFavoriteSnapshot.fxml"));
+            pane = (Pane) loader.load();
+            BookFavoriteSnapshotController bookFavoriteSnapshotController = (BookFavoriteSnapshotController) loader.getController();
+            bookFavoriteSnapshotController.setFavoriteBook(book, avgRating);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return pane;
+    }
+
+    public static void showBestBookSnapshots(VBox vbox, List<Map<String, Object>> bookList){
+        HBox hbox = new HBox();
+        hbox.setSpacing(15);
+        hbox.setAlignment(Pos.TOP_CENTER);
+        for(Map<String, Object> m: bookList){
+            Book b = new Book((String) m.get("isbn"), (String) m.get("title"), (String) m.get("author"), (String) m.get("imageURL"));
+            double averageRating = (Double) m.get("averageRating");
+            Pane bookPane = createBestBookSnapshot(b, averageRating);
+            hbox.getChildren().add(bookPane);
+        }
+        vbox.getChildren().add(hbox);
+    }
+
+    public static Pane createAuthorSnap(String author, double rating){
+        Pane pane = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/authorSnap.fxml"));
+            pane = (Pane) loader.load();
+            AuthorSnapController authorSnapController = (AuthorSnapController) loader.getController();
+            authorSnapController.setAuthor(author, rating);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return pane;
+    }
+
+    public static void showAuthors(VBox vBox, List<Map<String, Object>> authorList){
+        HBox hBox = new HBox();
+        hBox.setSpacing(10);
+        hBox.setAlignment(Pos.TOP_CENTER);
+        for(Map<String, Object> m:authorList){
+            Pane authorPane = createAuthorSnap((String) m.get("author"), (Double) m.get("avg_rat"));
+            hBox.getChildren().add(authorPane);
+        }
+        vBox.getChildren().add(hBox);
+    }
+
 }
