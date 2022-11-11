@@ -407,7 +407,7 @@ public class Utils {
         hBox.setSpacing(30);
         hBox.setAlignment(Pos.TOP_CENTER);
         for (ReadingList r : rl) {
-            Pane rlPane = createReadingListSnapshot(r);
+            Pane rlPane = createReadingListSnapshot(r, null);
             hBox.getChildren().add(rlPane);
         }
         vBox.getChildren().add(hBox);
@@ -486,7 +486,7 @@ public class Utils {
         MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
         Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
         if(mongoDBDriver.addBook(b)){
-            if(!neo4jDriver.newBook(b)){
+            if(!neo4jDriver.newBook(b) && !neo4jDriver.bookBelongToCategory(b.getIsbn(), b.getCategory())){
                 mongoDBDriver.deleteBook(b.getIsbn());
                 return false;
             }

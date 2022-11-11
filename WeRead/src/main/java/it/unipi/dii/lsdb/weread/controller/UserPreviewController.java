@@ -1,5 +1,6 @@
 package it.unipi.dii.lsdb.weread.controller;
 
+import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.model.User;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
@@ -27,6 +28,8 @@ public class UserPreviewController {
     }
 
     private void showUserPage(MouseEvent mouseEvent){
+        if(Session.getInstance().getLoggedUser().getIsAdministrator())
+            return;
         UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
         userPageController.setUser(mongoDBDriver.getUserInfo(user.getUsername()));
     }

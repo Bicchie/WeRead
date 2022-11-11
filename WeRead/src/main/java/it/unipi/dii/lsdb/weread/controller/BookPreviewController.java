@@ -1,6 +1,7 @@
 package it.unipi.dii.lsdb.weread.controller;
 
 import it.unipi.dii.lsdb.weread.model.Book;
+import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
@@ -30,6 +31,8 @@ public class BookPreviewController {
     }
 
     private void showBookPage(MouseEvent mouseEvent) {
+        if(Session.getInstance().getLoggedUser().getIsAdministrator())
+            return;
         if(book.getNumPages() <= 0){
             book = mongoDBDriver.getBookInformation(book.getIsbn());
         }

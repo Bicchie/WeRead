@@ -2,6 +2,7 @@ package it.unipi.dii.lsdb.weread.controller;
 
 
 import it.unipi.dii.lsdb.weread.model.ReadingList;
+import it.unipi.dii.lsdb.weread.model.Session;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import javafx.fxml.FXML;
@@ -23,6 +24,8 @@ public class ReadingListSnapshotController {
     }
 
     private void showReadingListPage(MouseEvent mouseEvent){
+        if(Session.getInstance().getLoggedUser().getIsAdministrator())
+            return;
         // means that you are arriving from suggestion of reading list, so you can go to the user that creates the rl
         if(readinglist.getBooks().size() == 0){
             String name = readinglist.getName();

@@ -23,37 +23,18 @@
             </ImageView>
          </left>
          <center>
-            <HBox alignment="CENTER_RIGHT" prefHeight="70.0" prefWidth="541.0" BorderPane.alignment="CENTER" />
+            <HBox alignment="CENTER" prefHeight="70.0" prefWidth="541.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="newBookButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="170.0" style="-fx-background-color: orange;" text="INSERT NEW BOOK" />
+               </children></HBox>
          </center>
          <right>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-               <children>
-                  <ImageView fx:id="bookSearchIcon" fitHeight="36.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@img/bookSearchIcon.png" />
-                     </image>
-                  </ImageView>
-                  <ImageView fx:id="homeIcon" fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@img/homeIcon.png" />
-                     </image>
-                  </ImageView>
-                  <ImageView fx:id="userIcon" fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@img/userIcon.png" />
-                     </image>
-                  </ImageView>
-               </children>
-            </HBox>
+            <HBox alignment="CENTER" prefHeight="55.0" prefWidth="58.0" BorderPane.alignment="CENTER" />
          </right>
       </BorderPane>
-      <VBox alignment="TOP_CENTER" prefHeight="446.0" prefWidth="700.0">
+      <VBox alignment="TOP_CENTER" prefHeight="446.0" prefWidth="700.0" style="-fx-background-color: white;">
          <children>
-            <Label text="what statistics do you want to see?">
-               <VBox.margin>
-                  <Insets top="3.0" />
-               </VBox.margin>
-            </Label>
+            <Label text="what statistics do you want to see?" />
             <HBox alignment="TOP_CENTER" prefWidth="200.0" spacing="50.0">
                <children>
                   <ComboBox fx:id="statisticsChoice" prefHeight="27.0" prefWidth="150.0" />
@@ -75,7 +56,8 @@
                                  </font>
                                  <VBox.margin>
                                     <Insets bottom="5.0" />
-                                 </VBox.margin></Label>
+                                 </VBox.margin>
+                              </Label>
                            </children>
                         </VBox>
                         <VBox fx:id="resultBox2" alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0" prefWidth="600.0" style="-fx-background-color: white;">
@@ -86,7 +68,8 @@
                                  </font>
                                  <VBox.margin>
                                     <Insets bottom="5.0" />
-                                 </VBox.margin></Label>
+                                 </VBox.margin>
+                              </Label>
                            </children>
                         </VBox>
                         <VBox fx:id="resultBox3" alignment="TOP_CENTER" layoutX="10.0" layoutY="210.0" prefWidth="600.0" style="-fx-background-color: white;">
@@ -97,7 +80,8 @@
                                  </font>
                                  <VBox.margin>
                                     <Insets bottom="5.0" />
-                                 </VBox.margin></Label>
+                                 </VBox.margin>
+                              </Label>
                            </children>
                         </VBox>
                         <VBox fx:id="resultBox4" alignment="TOP_CENTER" layoutX="10.0" layoutY="44.0" prefWidth="600.0" style="-fx-background-color: white;">
@@ -108,7 +92,8 @@
                                  </font>
                                  <VBox.margin>
                                     <Insets bottom="5.0" />
-                                 </VBox.margin></Label>
+                                 </VBox.margin>
+                              </Label>
                            </children>
                         </VBox>
                      </children>

@@ -14,9 +14,7 @@ import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 
 public class NewBookPageController {
-    @FXML private ImageView bookSearchIcon;
-    @FXML private ImageView homeIcon;
-    @FXML private ImageView userIcon;
+    @FXML private Button insightsPageButton;
     @FXML private TextField isbnField;
     @FXML private TextField titleField;
     @FXML private TextField authorField;
@@ -36,6 +34,11 @@ public class NewBookPageController {
         mongoDBDriver = MongoDBDriver.getInstance();
         neo4jDriver = Neo4jDriver.getInstance();
         addButton.setOnMouseClicked(mouseEvent -> addBook(mouseEvent));
+        insightsPageButton.setOnMouseClicked(mouseEvent -> showInsightsPage(mouseEvent));
+    }
+
+    private void showInsightsPage(MouseEvent mouseEvent){
+        Utils.changeScene("/insightsPage.fxml", mouseEvent);
     }
 
     private void addBook(MouseEvent mouseEvent){

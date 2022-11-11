@@ -736,7 +736,7 @@ public class Neo4jDriver{
                     int numFollower = r.get("numFollower").asInt();
                     Map<String, Object> m = new HashMap<>();
                     m.put("username", user);
-                    m.put("numFollower", numFollower);
+                    m.put("numFollowers", numFollower);
                     userList.add(m);
                 }
                 return null;

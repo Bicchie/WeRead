@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InsightsPageController {
-    @FXML private ImageView bookSearchIcon;
-    @FXML private ImageView homeIcon;
-    @FXML private ImageView userIcon;
+    @FXML private Button newBookButton;
     @FXML private ComboBox statisticsChoice;
     @FXML private Button goButton;
     @FXML private VBox resultBox;
@@ -47,6 +45,11 @@ public class InsightsPageController {
         neo4jDriver = Neo4jDriver.getInstance();
         statisticsChoice.getItems().addAll("Books statistics", "Users statistics");
         goButton.setOnMouseClicked(mouseEvent -> getResults(mouseEvent));
+        newBookButton.setOnMouseClicked(mouseEvent -> showNewBookPage(mouseEvent));
+    }
+
+    private void showNewBookPage(MouseEvent mouseEvent){
+        Utils.changeScene("/newBookPage.fxml", mouseEvent);
     }
 
     public void getResults(MouseEvent mouseEvent){
@@ -111,7 +114,7 @@ public class InsightsPageController {
             //USERS STATISTICS
 
             //first result
-            resultLabel1.setText("Top 3 users with more reviews than others");
+            resultLabel1.setText("Top 3 users with more reviews");
             List<Map<String, Object>> userListMap = mongoDBDriver.userWithMoreReviews(3);
             List<User> userList = new ArrayList<>();
             for(Map<String, Object> m: userListMap){
@@ -157,7 +160,8 @@ public class InsightsPageController {
             //the user is built in order to be printed with the UserReview file
             List<User> users = new ArrayList<>();
             for(Map<String, Object> m: resList){
-                User u = new User((String) m.get("username"), "number of followers", (String) m.get("numFollowers"));
+                int numFollowers = (Integer) m.get("numFollowers");
+                User u = new User((String) m.get("username"), "number of followers", String.valueOf(numFollowers));
                 users.add(u);
             }
             Utils.addUserPreviews(resultBox4, users);
