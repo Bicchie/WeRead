@@ -413,6 +413,33 @@ public class Neo4jDriver{
     }
 
     /**
+     * Retrieve the category of a book given the isbn
+     * @param isbn of the book
+     * @return the number of likes received
+     */
+    public String getCategory(String isbn)
+    {
+        String category = "error";
+        try(Session session = driver.session())
+        {
+            category = session.readTransaction((TransactionWork<String>) tx -> {
+                Result r = tx.run("MATCH (c:Category)<-[bt:BELONGS_TO]-(b:Book{isbn: $isbn})\n" +
+                                "RETURN c.name AS category",
+                        parameters("isbn",isbn));
+                Record rec = r.next();
+                return rec.get("category").asString();
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return category;
+    }
+
+
+
+    /**
      * Check if a user follows another user
      * @param usernameA
      * @param usernameB

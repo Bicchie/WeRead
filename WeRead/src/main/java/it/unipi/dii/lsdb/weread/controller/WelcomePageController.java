@@ -14,6 +14,8 @@ import it.unipi.dii.lsdb.weread.utils.Utils;
 
 import javafx.scene.input.MouseEvent;
 
+import javax.rmi.CORBA.Util;
+
 /**
  * Controller for the Welcome page
  */
@@ -79,7 +81,6 @@ public class WelcomePageController {
                 Session newSession = Session.getInstance();
                 User user = mongoDBDriver.getUserInfo(loginUsernameTextField.getText());
                 newSession.setLoggedUser(user);
-                System.out.println("Login Done:" + loginUsernameTextField.getText());
 
                 //HomePageController homePageController = (HomePageController) Utils.changeScene("/homePage.fxml",actionEvent);
                 // this is the right way to call the userPage ---> YOU MUST CALL ALSO SET USER!!!
@@ -117,22 +118,21 @@ public class WelcomePageController {
                 User registered = new User(registrationUsernameTextField.getText(),registrationNameTextField.getText(),
                         registrationSurnameTextField.getText(), registrationEmailTextField.getText(), registrationPasswordField.getText(),false);
                 newSession.setLoggedUser(registered);
-                // Add User in neo4j
-                if(neo4jDriver.newUser(registered)){
-                    System.out.println("User Created in neo4j!");
-                } else{
-                    System.out.println("PROBLEM in creating User in neo4j!");
-                }
-                setInterestedCategories(registrationUsernameTextField.getText());
 
                 // add User in MongoDB
                 if(mongoDBDriver.addUser(registered)){
-                    System.out.println("User Created in mongoDB!");
+                    if(!neo4jDriver.newUser(registered)) {
+                        mongoDBDriver.deleteUser(registered.getUsername());
+                        Utils.showErrorAlert("PROBLEM in creating User in neo4j!");
+                    }
                 } else {
-                    System.out.println("PROBLEM in creating User in mongoDB!");
+                    Utils.showErrorAlert("PROBLEM in creating User in mongoDB!");
                 }
 
-                // CAMBIO SCENA
+                setInterestedCategories(registrationUsernameTextField.getText());
+
+                UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
+                userPageController.setUser(newSession.getLoggedUser());
             }
             else
             {

@@ -2,6 +2,7 @@ package it.unipi.dii.lsdb.weread.controller;
 
 import it.unipi.dii.lsdb.weread.model.Book;
 import it.unipi.dii.lsdb.weread.persistence.MongoDBDriver;
+import it.unipi.dii.lsdb.weread.persistence.Neo4jDriver;
 import it.unipi.dii.lsdb.weread.utils.Utils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -19,10 +20,12 @@ public class BookPreviewController {
     @FXML private Label bookCategory;
 
     private MongoDBDriver mongoDBDriver;
+    private Neo4jDriver neo4jDriver;
     private Book book; //book showed in this preview
 
     public void initialize(){
         mongoDBDriver = MongoDBDriver.getInstance();
+        neo4jDriver = Neo4jDriver.getInstance();
         bookPane.setOnMouseClicked(mouseEvent -> showBookPage(mouseEvent));
     }
 
@@ -39,6 +42,11 @@ public class BookPreviewController {
         bookTitle.setText(book.getTitle());
         bookAuthor.setText(book.getAuthor());
         bookImage.setImage(new Image(book.getImageURL()));
-        bookCategory.setText(book.getCategory());
+        if(book.getCategory() == null){
+            String category = neo4jDriver.getCategory(book.getIsbn());
+            bookCategory.setText(category);
+        } else {
+            bookCategory.setText(book.getCategory());
+        }
     }
 }

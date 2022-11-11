@@ -26,6 +26,7 @@ public class ReadingListPageController {
     @FXML private ImageView homeIcon;
 
     private ReadingList readingList; // the readinglist showed in this page
+    private String owner;  // the user that owns the reading list
     private Neo4jDriver neo4jDriver;
     private MongoDBDriver mongoDBDriver;
     private Session session;
@@ -40,23 +41,42 @@ public class ReadingListPageController {
         homeIcon.setOnMouseClicked(mouseEvent -> clickOnHomeIcon(mouseEvent));
     }
 
-    public void setReadingList(ReadingList rl){
+    public void setReadingList(ReadingList rl,String username){
         this.readingList = rl;
+        this.owner = username;
         readingListTitle.setText(readingList.getName());
-        // io lo prenderei chi cazzo l'ha fatta
-        //usernameLabel.setText(usernameCreator[1]);
-        //usernameLabel.setOnMouseClicked(mouseEvent -> clickOnCreator(mouseEvent));
+        usernameLabel.setText(username);
+        usernameLabel.setOnMouseClicked(mouseEvent -> clickOnCreator(mouseEvent));
         numLikesLabel.setText(Integer.toString(readingList.getNumLikes()));
         Utils.addBookPreviewsBig(booksVBox,readingList.getBooks());
-        // if the user already liked the reading list
-        if(neo4jDriver.checkUserLikesReadingList(session.getLoggedUser().getUsername(),readingList.getName())){
-            likeButton.setOnMouseClicked(mouseEvent -> clickOnUnlikeButton(mouseEvent));
-            likeButton.setText("Unlike");
+        // if you are the owner, you can delete the reading list
+        if(owner.equals(session.getLoggedUser().getUsername())){
+            likeButton.setText("Delete");
+            likeButton.setOnMouseClicked(mouseEvent -> clickOnDeleteButton(mouseEvent));
         } else {
-            likeButton.setOnMouseClicked(mouseEvent -> clickOnLikeButton(mouseEvent));
-            likeButton.setText("Like");
+            // if the user already liked the reading list
+            if(neo4jDriver.checkUserLikesReadingList(session.getLoggedUser().getUsername(),readingList.getName())){
+                likeButton.setOnMouseClicked(mouseEvent -> clickOnUnlikeButton(mouseEvent));
+                likeButton.setText("Unlike");
+            } else {
+                likeButton.setOnMouseClicked(mouseEvent -> clickOnLikeButton(mouseEvent));
+                likeButton.setText("Like");
+            }
         }
+    }
 
+    private void clickOnDeleteButton(MouseEvent mouseEvent){
+        if(mongoDBDriver.removeReadingList(readingList,owner)){
+            if(!neo4jDriver.deleteReadingList(readingList.getName())){
+                mongoDBDriver.addNewReadingList(readingList,owner);
+                Utils.showErrorAlert("Error in deleting reading list from neo4j!");
+            }
+        } else {
+            Utils.showErrorAlert("Error in deleting reading list from mongoDB!");
+        }
+        User u = mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername());
+        UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", mouseEvent);
+        userPageController.setUser(u);
     }
 
     private void clickOnCreator(MouseEvent mouseEvent){
@@ -66,14 +86,35 @@ public class ReadingListPageController {
     }
 
     private  void clickOnUnlikeButton(MouseEvent mouseEvent){
+        // cross-db consistency
+        if(mongoDBDriver.removeLikeReadingList(owner,readingList.getName())){
+            String rlname = owner + ":" + readingList.getName();
+            if(!neo4jDriver.unlikeReadingList(session.getLoggedUser().getUsername(),rlname)){
+                mongoDBDriver.addLikeReadingList(owner,readingList.getName());
+                Utils.showErrorAlert("Error in liking reading list from neo4j!");
+            }
+        } else {
+            Utils.showErrorAlert("Error in liking reading list from mongoDB!");
+        }
         likeButton.setText("Like");
         int numLikes = Integer.parseInt(numLikesLabel.getText());
         numLikes = numLikes - 1;
         numLikesLabel.setText(Integer.toString(numLikes));
         likeButton.setOnMouseClicked(event -> clickOnLikeButton(mouseEvent));
+
     }
 
     private void clickOnLikeButton(MouseEvent mouseEvent){
+        // cross-db consistency
+        if(mongoDBDriver.addLikeReadingList(owner,readingList.getName())){
+            String rlname = owner + ":" + readingList.getName();
+            if(!neo4jDriver.likesReadingList(session.getLoggedUser().getUsername(),rlname)){
+                mongoDBDriver.removeLikeReadingList(owner,readingList.getName());
+                Utils.showErrorAlert("Error in liking reading list from neo4j!");
+            }
+        } else {
+            Utils.showErrorAlert("Error in liking reading list from mongodDB!");
+        }
         likeButton.setText("Unlike");
         int numLikes = Integer.parseInt(numLikesLabel.getText());
         numLikes = numLikes + 1;

@@ -68,7 +68,7 @@ public class UserPageController {
         follower.setText("follower: " + neo4jDriver.numberFollowers(user.getUsername()));
 
         Utils.showFavoriteBooks(favoriteBooksHbox,user.getFavourite());
-        Utils.showReadingLists(readingListsHbox,user.getReadingLists());
+        Utils.showReadingLists(readingListsHbox,user.getReadingLists(),user.getUsername());
         Utils.showReviews(reviewsHbox,user.getReviewList());
 
         // if is the profile of the loggedUser to be shown

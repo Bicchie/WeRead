@@ -373,14 +373,14 @@ public class Utils {
      * @param rl  reading list to display in the snapshot
      * @return
      */
-    private static Pane createReadingListSnapshot(ReadingList rl)
+    private static Pane createReadingListSnapshot(ReadingList rl, String username)
     {
         Pane pane = null;
         try {
             FXMLLoader loader = new FXMLLoader(Utils.class.getResource("/readingListSnapshot.fxml"));
             pane = (Pane) loader.load();
             ReadingListSnapshotController readingListSnapshotController = (ReadingListSnapshotController) loader.getController();
-            readingListSnapshotController.setReadinglist(rl);
+            readingListSnapshotController.setReadinglist(rl,username);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -390,12 +390,12 @@ public class Utils {
 
     /**
      * Function that adds the review snapshot for each review made by the user
-     * @param box      hBox in which I have to show the snapshots
+     * @param box  hBox in which I have to show the snapshots
      * @param rl   reading lists to show
      */
-    public static void showReadingLists(Pane box, List<ReadingList> rl) {
+    public static void showReadingLists(Pane box, List<ReadingList> rl,String username) {
         for (ReadingList r : rl) {
-            Pane rlPane = createReadingListSnapshot(r);
+            Pane rlPane = createReadingListSnapshot(r,username);
             box.getChildren().add(rlPane);
         }
     }

@@ -106,7 +106,7 @@ public class HomePageController {
                 Utils.addBookPreviewsBig(suggestionsVbox,sublist);
                 break;
             case "Reading Lists":
-                Utils.showReadingLists(suggestionsVbox,sublist);
+                Utils.showReadingLists(suggestionsVbox,sublist,null);
                 break;
         }
 
