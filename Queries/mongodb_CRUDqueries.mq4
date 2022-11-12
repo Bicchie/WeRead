@@ -8,8 +8,6 @@ Read
 - Get User information by Username \\ -> DONE
 - Check uniqueness of a username -> DONE
 - Check username and password of a certain User \\ -> DONE
-- Get the reading lists created by a certain user \\ -> DONE
-- Get the favourite books list of a certain user \\ -> DONE
 - Get Book information by book's isbn \\ -> DONE
 - Get a book list given a book title -> DONE
 - Get a book list given a book category -> DONE
@@ -99,30 +97,6 @@ db.users.countDocuments({username: <inserted_username>})
 
 //Check username and password of a certain User (it should return 1 or 0)
 db.users.countDocuments({username: <inserted_username>, password: <inserted_password>})
-
-//Get the reading lists created by a certain user, ordered by the number of received likes
-db.users.aggregate([
-	{$match: {username: <searched_usename>}},
-	{
-		$project: {
-			_id: 0,
-			result:{
-				$sortArray: {input: "$readingList", sortBy: {numLikes: -1}}
-			}
-		}
-	}
-])
-
-//seconda versione
-db.users.aggregate([
-	{$match: {isbn: <loaded_book_isbn>}},
-	{$unwind: "$readingList"},
-	{$project: {_id: 0, readingList: 1}}, 
-	{$sort: {"readingList.numLikes": 1}}
-])
-
-//Get the favourite books list of a certain user
-db.users.find({username: <searched_username>}, {_id: 0, favorite: 1})
 
 //Get Book information by book's isbn. This query is executed when we are showing information related to one and only book, so we need to use the isbn
 db.books.find({isbn: <book_isbn>}, {_id: 0})
