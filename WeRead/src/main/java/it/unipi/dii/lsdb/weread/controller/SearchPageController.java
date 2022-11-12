@@ -28,7 +28,7 @@ public class SearchPageController {
 
     private MongoDBDriver mongoDBDriver;
     private List resultList; //list of the search results
-    private final String[] searchByOptions = {"title", "author", "category", "publisher"};
+    private final String[] searchByOptions = {"title", "author", "category", "publisher", "publication year"};
     private long currentPage; //index of the current page of the results list
     private long numPages; //total number of pages requested for showing the last search results
     private int numResultsToShow = 3; //maximum number of results to be showed in each page
@@ -135,6 +135,10 @@ public class SearchPageController {
                     numPages = (long) Math.ceil(mongoDBDriver.countBookByPublisher(searchKey)/ numResultsToShow);
                     resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                     break;
+                case "publication year":
+                    numPages = (long) Math.ceil(mongoDBDriver.countBookByYear(searchKey)/ numResultsToShow);
+                    resultList = mongoDBDriver.searchBookByYear(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
+                    break;
             }
             setPageBox();
             Utils.addBookPreviewsBig(resultBox, resultList);
@@ -193,6 +197,9 @@ public class SearchPageController {
                 break;
             case "publisher":
                 resultList = mongoDBDriver.searchBookByPublisher(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
+                break;
+            case "publication year":
+                resultList = mongoDBDriver.searchBookByYear(searchKey, (int) (currentPage-1) * numResultsToShow, numResultsToShow);
                 break;
         }
         Utils.addBookPreviewsBig(resultBox, resultList);

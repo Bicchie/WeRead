@@ -272,6 +272,22 @@ public class MongoDBDriver {
         return  bookList;
     }
 
+    public long countBookByYear(String year){
+        return bookCollection.countDocuments(eq("publicationYear", year));
+    }
+
+    public List<Book> searchBookByYear(String year, int skip, int limit){
+        List<Book> bookList = null;
+        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
+
+        Gson gson = new Gson();
+        List<Document> res = (List<Document>) bookCollection.find(eq("publicationYear", year)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
+
+        Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+        bookList = gson.fromJson(gson.toJson(res), bookListType);
+        return  bookList;
+    }
+
     public long countUsersByString(String user){
         Pattern pattern  = Pattern.compile("^.*" + user + ".*$", Pattern.CASE_INSENSITIVE);
         return userCollection.countDocuments(regex("username", pattern));
