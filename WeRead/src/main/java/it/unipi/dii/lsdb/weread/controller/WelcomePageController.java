@@ -82,10 +82,12 @@ public class WelcomePageController {
                 User user = mongoDBDriver.getUserInfo(loginUsernameTextField.getText());
                 newSession.setLoggedUser(user);
 
-                //HomePageController homePageController = (HomePageController) Utils.changeScene("/homePage.fxml",actionEvent);
-                // this is the right way to call the userPage ---> YOU MUST CALL ALSO SET USER!!!
-                UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
-                userPageController.setUser(newSession.getLoggedUser());
+                if(user.getIsAdministrator()){
+                    InsightsPageController insightsPageController = (InsightsPageController) Utils.changeScene("/insightsPage.fxml", actionEvent);
+                } else {
+                    UserPageController userPageController = (UserPageController) Utils.changeScene("/userPage.fxml", actionEvent);
+                    userPageController.setUser(newSession.getLoggedUser());
+                }
             }
             else
             {

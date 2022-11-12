@@ -204,25 +204,6 @@ public class MongoDBDriver {
         return b;
     }
 
-    public List<Review> getBookReviews(String isbn){
-        //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
-        Gson gson = new Gson();
-        Bson match = match(eq("isbn", isbn));
-        Bson unwind = unwind("$reviews");
-        Bson project = project(fields(excludeId(), include("reviews")));
-        Bson sort = sort(descending("reviews.rating"));
-
-        MongoCursor<Document> iterator = (MongoCursor<Document>) bookCollection.aggregate(Arrays.asList(match, unwind, project, sort)).iterator();
-        List<Review> reviews = new ArrayList<>();
-        while(iterator.hasNext()){
-            Document doc = iterator.next();
-            Document reviewDocument = (Document) doc.get("reviews");
-            Review rev = gson.fromJson(gson.toJson(reviewDocument), Review.class);
-            reviews.add(rev);
-        }
-        return reviews;
-    }
-
     public long countBookByTitle(String title){
         Pattern pattern  = Pattern.compile("^.*" + title + ".*$", Pattern.CASE_INSENSITIVE);
         return bookCollection.countDocuments(regex("title", pattern));
