@@ -101,7 +101,8 @@ public class BookPageController {
         }
 
 
-        List<Book> favorites = mongoDBDriver.getFavoriteOfUser(session.getLoggedUser().getUsername());
+        //List<Book> favorites = mongoDBDriver.getFavoriteOfUser(session.getLoggedUser().getUsername());
+        List<Book> favorites = session.getLoggedUser().getFavourite();
         boolean isFavorite = false; //true if the showed book is already in the favorite books of the logged user
         if(favorites == null)
             System.out.println("NULL");
