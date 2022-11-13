@@ -437,10 +437,8 @@ public class MongoDBDriver {
         Bson push = Updates.push("readingList", toAdd);
         UpdateResult res = userCollection.updateOne(match, push);
         if(res.getModifiedCount() < 1){
-            System.out.println("FALSE");
             return false;
         }
-        System.out.println("TRUE");
         return true;
     }
 
