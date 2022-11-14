@@ -1030,7 +1030,7 @@ public class Neo4jDriver{
                                           "LIMIT $limit\n" +
                                           "UNION \n" +
                                           "MATCH (u:User{username: $username})-[f:FOLLOWS]->(ub:User)-[f2:FOLLOW]->(uc:User)-[l:LIKES]->(rl:ReadingList)\n" +
-                                          "WHERE NOT EXISTS((u)-[:FOLLOW]->(uc))\n" +
+                                          "WHERE NOT EXISTS((u)-[:FOLLOW]->(uc))  AND NOT EXISTS((u)-[:LIKES]->(rl))\n" +
                                           "RETURN rl.name AS name\n" +
                                           "LIMIT $limit\n",
                         parameters( "username", loggedUsername, "limit", howMany));
