@@ -9,6 +9,8 @@ import it.unipi.dii.lsdb.weread.model.*;
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
+import it.unipi.dii.lsdb.weread.utils.ConfigurationParameters;
+import it.unipi.dii.lsdb.weread.utils.Utils;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -48,19 +50,8 @@ public class MongoDBDriver {
     private String password;
     private String dbName;
 
-    /*
-    private class DateTimeAdapter implements JsonDeserializer<LocalDateTime>{
-        @Override
-        public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            if(json.getAsJsonPrimitive().getAsString().equals(""))
-                return LocalDateTime.now();
-            return LocalDateTime.parse(json.getAsJsonPrimitive().getAsString());
-        }
-    }*/
 
-    //private MongoDBDriver(ConfigurationParameters configurationParameters) {
-    private MongoDBDriver() {
-        /*
+    private MongoDBDriver(ConfigurationParameters configurationParameters) {
         this.firstIp = configurationParameters.getMongoFirstIp();
         this.firstPort = configurationParameters.getMongoFirstPort();
         this.secondIp = configurationParameters.getMongoSecondIp();
@@ -69,31 +60,28 @@ public class MongoDBDriver {
         this.thirdPort = configurationParameters.getMongoThirdPort();
         this.username = configurationParameters.getMongoUsername();
         this.password = configurationParameters.getMongoPassword();
-        this.dbName = configurationParameters.getMongoDbName();*/
-        this.dbName = "WeRead";
+        this.dbName = configurationParameters.getMongoDbName();
     }
 
     public static MongoDBDriver getInstance() {
         if (instance == null) {
-            instance = new MongoDBDriver();
-            //instance = new MongoDBDriver(Utils.readConfigurationParameters());
+            instance = new MongoDBDriver(Utils.readConfigurationParameters());
         }
         return instance;
     }
 
     public boolean startConnection() {
         try {
-            /*
+
             String string = "mongodb://";
             if(!username.equals("")){
                 string += username + ":" + password + "@";
             }
-            string += firstIp + ":" + firstPort + ", " + secondIp + ":" + secondPort + ", " + thirdIp + ":" + thirdPort;*/
-            String string = "mongodb://localhost:27017";
+            string += firstIp + ":" + firstPort + ", " + secondIp + ":" + secondPort + ", " + thirdIp + ":" + thirdPort;
             ConnectionString connectionString = new ConnectionString(string);
             MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
-                    .readPreference(ReadPreference.secondaryPreferred())
+                    .readPreference(ReadPreference.nearest())
                     .retryWrites(true)
                     .writeConcern(WriteConcern.W1) //W<x> dipende da quante repliche abbiamo, e quindi in quante repliche scrivere
                     .build();

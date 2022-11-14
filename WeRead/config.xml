@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <it.unipi.dii.lsdb.weread.utils.ConfigurationParameters>
     <mongoFirstIp>127.0.0.1</mongoFirstIp>
-    <mongoFirstPort>27020</mongoFirstPort>
+    <mongoFirstPort>27018</mongoFirstPort>
     <mongoSecondIp>127.0.0.1</mongoSecondIp>
-    <mongoSecondPort>27020</mongoSecondPort>
+    <mongoSecondPort>27019</mongoSecondPort>
     <mongoThirdIp>127.0.0.1</mongoThirdIp>
     <mongoThirdPort>27020</mongoThirdPort>
     <mongoUsername></mongoUsername>
