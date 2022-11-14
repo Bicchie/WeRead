@@ -31,6 +31,7 @@ public class UserPageController {
     @FXML private ImageView followIcon;
     @FXML private ImageView unfollowIcon;
     @FXML private Button changePasswordButton;
+    @FXML private Button logOutButton;
     @FXML private TextField newPasswordText;
 
 
@@ -75,9 +76,11 @@ public class UserPageController {
         if (u.getUsername().equals(session.getLoggedUser().getUsername())){
             followIcon.setVisible(false);
             unfollowIcon.setVisible(false);
-            changePasswordButton.setOnMouseClicked(mouseEvent -> clickOnChangePassword(mouseEvent));;
+            changePasswordButton.setOnMouseClicked(mouseEvent -> clickOnChangePassword(mouseEvent));
+            logOutButton.setOnMouseClicked(mouseEvent -> clickOnLogOut(mouseEvent));
         } else { // is another user profile to be shown
             changePasswordButton.setVisible(false);
+            logOutButton.setVisible(false);
             newPasswordText.setVisible(false);
             // if the loggedUser follows the user of the profile
             if(neo4jDriver.checkUserFollowsUser(session.getLoggedUser().getUsername(),user.getUsername())){
@@ -149,6 +152,9 @@ public class UserPageController {
         }
     }
 
-
+    private void clickOnLogOut(MouseEvent mouseEvent){
+        Session.setLoggedUser(null);
+        Utils.changeScene("/welcomePage.fxml", mouseEvent);
+    }
 
 }
