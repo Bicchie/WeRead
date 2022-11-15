@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.rmi.CORBA.Util;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +32,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Utils {
+    private static String logFile = "./logFile.txt";
+
     /**
      * This function is used to read the config.xml file
      * @return  ConfigurationParameters instance
@@ -103,6 +107,18 @@ public class Utils {
         alert.setHeaderText("EVERYTHING IS ALL RIGHT");
         alert.setTitle("Operation Done");
         alert.show();
+    }
+
+    public static void writeInconsistencyError(String message){
+        FileWriter f = null;
+        String toWrite = "INCONSISTENT:" + message + "\n";
+        try {
+            f = new FileWriter(logFile, true);
+            f.append(toWrite);
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -212,8 +228,9 @@ public class Utils {
         if(mongoDBDriver.addBookToFavorite(username, book)){
             if(!neo4jDriver.favoritesBook(username, book.getIsbn())) {
                 //must remove the copy in mongodb
-                mongoDBDriver.removeBookFromFavorite(username, book);
                 showErrorAlert("Error in adding to favorite books in neo4j");
+                if(!mongoDBDriver.removeBookFromFavorite(username, book))
+                    Utils.writeInconsistencyError("unable to remove book " + book.getIsbn() + " from favorites of " + username);
                 return false;
             }
             else
@@ -233,8 +250,9 @@ public class Utils {
         if(mongoDBDriver.removeBookFromFavorite(username, book)){
             if(!neo4jDriver.removeFavoriteBook(username, book.getIsbn())) {
                 //must remove the copy in mongodb
-                mongoDBDriver.addBookToFavorite(username, book);
                 showErrorAlert("Error in removing from favorite books in neo4j");
+                if(!mongoDBDriver.addBookToFavorite(username, book))
+                    Utils.writeInconsistencyError("unable to add book " + book.getIsbn() + " from favorites of " + username);
                 return false;
             }
             else
@@ -253,8 +271,9 @@ public class Utils {
 
         if(mongoDBDriver.addBookToReadingList(username, rlName, book)){
             if(!neo4jDriver.readingListHasBook(username+":"+rlName, book.getIsbn())){
-                mongoDBDriver.removeBookFromReadingList(username, rlName, book);
                 showErrorAlert("Error in adding a book to a reading list in neo4j");
+                if(!mongoDBDriver.removeBookFromReadingList(username, rlName, book))
+                    Utils.writeInconsistencyError("unable to remove book " + book.getIsbn() + "from rl " + rlName + " of " + username);
                 return false;
             }
             else
@@ -273,8 +292,9 @@ public class Utils {
 
         if(mongoDBDriver.removeBookFromReadingList(username, rlName, book)){
             if(!neo4jDriver.removeBookFromReadingList(book.getIsbn(), username+":"+rlName)){
-                mongoDBDriver.addBookToReadingList(username, rlName, book);
                 showErrorAlert("Error in removing a book from a reading list in neo4j");
+                if(!mongoDBDriver.addBookToReadingList(username, rlName, book))
+                    Utils.writeInconsistencyError("unable to add book " + book.getIsbn() + "to rl " + rlName + " of " + username);
                 return false;
             }
             else
@@ -293,8 +313,9 @@ public class Utils {
 
         if(mongoDBDriver.addNewReadingList(rl, username)){
             if(!neo4jDriver.newReadingList(new ReadingList(username + ":" + rl.getName()))){
-                mongoDBDriver.removeReadingList(rl, username);
                 showErrorAlert("Error in creating a new reading list in neo4j");
+                if(!mongoDBDriver.removeReadingList(rl, username))
+                    Utils.writeInconsistencyError("unable to remove rl " + rl.getName() + " of " + username);
                 return false;
             }
             else
@@ -486,8 +507,10 @@ public class Utils {
         MongoDBDriver mongoDBDriver = MongoDBDriver.getInstance();
         Neo4jDriver neo4jDriver = Neo4jDriver.getInstance();
         if(mongoDBDriver.addBook(b)){
-            if(!neo4jDriver.newBook(b) && !neo4jDriver.bookBelongToCategory(b.getIsbn(), b.getCategory())){
-                mongoDBDriver.deleteBook(b.getIsbn());
+            if(!neo4jDriver.newBook(b) || !neo4jDriver.bookBelongToCategory(b.getIsbn(), b.getCategory())){
+                showErrorAlert("Error in adding a book in neo4j");
+                if(!mongoDBDriver.deleteBook(b.getIsbn()))
+                    writeInconsistencyError("unable to delete book " + b.getIsbn());
                 return false;
             }
         }

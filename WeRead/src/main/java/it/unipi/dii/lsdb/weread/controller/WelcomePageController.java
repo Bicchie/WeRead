@@ -124,7 +124,8 @@ public class WelcomePageController {
                 // add User in MongoDB
                 if(mongoDBDriver.addUser(registered)){
                     if(!neo4jDriver.newUser(registered)) {
-                        mongoDBDriver.deleteUser(registered.getUsername());
+                        if(!mongoDBDriver.deleteUser(registered.getUsername()))
+                            Utils.writeInconsistencyError("Unable to delete user " + registered.getUsername());
                         Utils.showErrorAlert("PROBLEM in creating User in neo4j!");
                     }
                 } else {

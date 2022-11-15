@@ -90,11 +90,14 @@ public class ReadingListPageController {
         if(mongoDBDriver.removeLikeReadingList(owner,readingList.getName())){
             String rlname = owner + ":" + readingList.getName();
             if(!neo4jDriver.unlikeReadingList(session.getLoggedUser().getUsername(),rlname)){
-                mongoDBDriver.addLikeReadingList(owner,readingList.getName());
                 Utils.showErrorAlert("Error in liking reading list from neo4j!");
+                if(!mongoDBDriver.addLikeReadingList(owner,readingList.getName()))
+                    Utils.writeInconsistencyError("Unable to like " + readingList.getName() + " of " + owner);
+                return;
             }
         } else {
             Utils.showErrorAlert("Error in liking reading list from mongoDB!");
+            return;
         }
         likeButton.setText("Like");
         int numLikes = Integer.parseInt(numLikesLabel.getText());
@@ -109,11 +112,14 @@ public class ReadingListPageController {
         if(mongoDBDriver.addLikeReadingList(owner,readingList.getName())){
             String rlname = owner + ":" + readingList.getName();
             if(!neo4jDriver.likesReadingList(session.getLoggedUser().getUsername(),rlname)){
-                mongoDBDriver.removeLikeReadingList(owner,readingList.getName());
                 Utils.showErrorAlert("Error in liking reading list from neo4j!");
+                if(!mongoDBDriver.removeLikeReadingList(owner,readingList.getName()))
+                    Utils.writeInconsistencyError("Unable to unlike " + readingList.getName() + " of " + owner);
+                return;
             }
         } else {
             Utils.showErrorAlert("Error in liking reading list from mongodDB!");
+            return;
         }
         likeButton.setText("Unlike");
         int numLikes = Integer.parseInt(numLikesLabel.getText());
