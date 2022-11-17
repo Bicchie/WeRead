@@ -185,7 +185,7 @@ public class BookPageController {
         int nFav = Integer.parseInt(numFavorite.getText().split(" ")[0]);
         nFav++;
         numFavorite.setText(nFav + " users add it to their favorite books");
-        session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
+        session.getLoggedUser().getFavourite().add(book);
         setFavoriteButton(true);
     }
 
@@ -195,7 +195,7 @@ public class BookPageController {
         int nFav = Integer.parseInt(numFavorite.getText().split(" ")[0]);
         nFav--;
         numFavorite.setText(nFav + " users add it to their favorite books");
-        session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
+        session.getLoggedUser().getFavourite().remove(book);
         setFavoriteButton(false);
     }
 
@@ -210,13 +210,19 @@ public class BookPageController {
             }
         }
         if(!exists){
-            if(!Utils.createNewReadingList(session.getLoggedUser().getUsername(), new ReadingList(selectedReadingList)))
+            ReadingList readingList = new ReadingList(selectedReadingList);
+            if(!Utils.createNewReadingList(session.getLoggedUser().getUsername(), readingList))
                 return; //if the reading list could not be created, the book will obviousbly be not added to it
             rlBox.getItems().add(selectedReadingList);
+            session.getLoggedUser().getReadingLists().add(readingList);
         }
         if(!Utils.addBookToReadingList(session.getLoggedUser().getUsername(), selectedReadingList, book))
             return;
-        session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
+        for(ReadingList rl: session.getLoggedUser().getReadingLists()){
+            if(rl.getName().equals(selectedReadingList)){
+                rl.getBooks().add(book);
+            }
+        }
         setRlButton(true);
     }
 
@@ -224,7 +230,11 @@ public class BookPageController {
         String selectedReadingList = (String) rlBox.getValue();
         if(!Utils.removeBookFromReadingList(session.getLoggedUser().getUsername(), selectedReadingList, book))
             return;
-        session.updateLoggedUserInfo(mongoDBDriver.getUserInfo(session.getLoggedUser().getUsername()));
+        for(ReadingList rl: session.getLoggedUser().getReadingLists()){
+            if(rl.getName().equals(selectedReadingList)){
+                rl.getBooks().remove(book);
+            }
+        }
         setRlButton(false);
     }
 
@@ -240,10 +250,12 @@ public class BookPageController {
             Utils.showErrorAlert("You have to write a text to complete the review!");
             return;
         }
-        if(mongoDBDriver.addNewReview(new Review(session.getLoggedUser().getUsername(), book.getIsbn(), text, rating, book.getTitle()), false)) {
+        Review newReview = new Review(session.getLoggedUser().getUsername(), book.getIsbn(), text, rating, book.getTitle());
+        if(mongoDBDriver.addNewReview(newReview, false)) {
             setReviewZone(true);
             reviewsVbox.getChildren().clear();
-            book = mongoDBDriver.getBookInformation(book.getIsbn());
+            book.getReviews().add(newReview);
+            session.getLoggedUser().getReviewList().add(newReview);
             Utils.addReviewsBig(reviewsVbox, book.getReviews(), true);
         }
         else

@@ -92,7 +92,7 @@ public class ReviewController {
             setLikeButton(true);
             int likes = Integer.parseInt(numLikes.getText());
             numLikes.setText(String.valueOf(likes+1));
-            session.updateLoggedUserInfo(session.getLoggedUser());
+            review.getLikers().add(session.getLoggedUser().getUsername());
         }
         else
             Utils.showErrorAlert("Error in liking the review");
@@ -103,7 +103,7 @@ public class ReviewController {
             setLikeButton(false);
             int likes = Integer.parseInt(numLikes.getText());
             numLikes.setText(String.valueOf(likes-1));
-            session.updateLoggedUserInfo(session.getLoggedUser());
+            review.getLikers().remove(session.getLoggedUser().getUsername());
         }
         else
             Utils.showErrorAlert("Error in unliking the review");
