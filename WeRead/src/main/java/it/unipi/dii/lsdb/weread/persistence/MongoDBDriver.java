@@ -193,8 +193,8 @@ public class MongoDBDriver {
     }
 
     public long countBookByTitle(String title){
-        //Pattern pattern  = Pattern.compile("^.*" + title + ".*$", Pattern.CASE_INSENSITIVE);
-        return bookCollection.countDocuments(eq("title", title));
+        Pattern pattern  = Pattern.compile("^.*" + title + ".*$");
+        return bookCollection.countDocuments(regex("title", pattern));
     }
 
     public List<Book> searchBookByTitle(String titleExpr, int skip, int limit){
@@ -202,8 +202,8 @@ public class MongoDBDriver {
         //Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new DateTimeAdapter()).create();
 
         Gson gson = new Gson();
-        //Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$", Pattern.CASE_INSENSITIVE);
-        List<Document> res = (List<Document>) bookCollection.find(eq("title", titleExpr)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
+        Pattern pattern  = Pattern.compile("^.*" + titleExpr + ".*$");
+        List<Document> res = (List<Document>) bookCollection.find(regex("title", pattern)).projection(fields(excludeId(), include("title", "author", "category", "imageURL", "isbn"))).skip(skip).limit(limit).into(new ArrayList());
         Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
         bookList = gson.fromJson(gson.toJson(res), bookListType);
         return  bookList;
